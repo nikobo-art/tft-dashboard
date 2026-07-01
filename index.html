@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -416,7 +416,7 @@
     </div>
     <div class="nav-right">
       <span class="sync-badge sync-local" id="sync-badge">● Local only</span>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
       <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
     </div>
   </nav>
@@ -469,8 +469,8 @@
         <div class="add-form">
           <input type="text" id="goal-input" placeholder="New goal (e.g. Hit 500 paying members)">
           <select id="goal-owner">
-            <option value="niko">💜 Niko</option>
-            <option value="thierry">🩷 Thierry</option>
+            <option value="niko">Niko</option>
+            <option value="thierry">Thierry</option>
             <option value="both">👥 Both</option>
           </select>
           <button class="btn" onclick="addGoal()">Add</button>
@@ -490,8 +490,8 @@
         <div class="add-form">
           <input type="text" id="priority-input" placeholder="New priority (e.g. Land 5 tier-1 influencer replies)">
           <select id="priority-owner">
-            <option value="niko">💜 Niko</option>
-            <option value="thierry">🩷 Thierry</option>
+            <option value="niko">Niko</option>
+            <option value="thierry">Thierry</option>
             <option value="both">👥 Both</option>
           </select>
           <button class="btn" onclick="addPriority()">Add</button>
@@ -511,8 +511,8 @@
         <div class="add-form">
           <input type="text" id="todo-input" placeholder="New to-do (e.g. Follow up with Ellie @ellharve)">
           <select id="todo-owner">
-            <option value="niko">💜 Niko</option>
-            <option value="thierry">🩷 Thierry</option>
+            <option value="niko">Niko</option>
+            <option value="thierry">Thierry</option>
             <option value="unassigned">⚪ Unassigned</option>
           </select>
           <button class="btn" onclick="addTodo()">Add</button>
@@ -522,8 +522,8 @@
           <button class="filter-btn active" data-filter="all" onclick="setTodoFilter('all', this)">All</button>
           <button class="filter-btn" data-filter="open" onclick="setTodoFilter('open', this)">Open</button>
           <button class="filter-btn" data-filter="done" onclick="setTodoFilter('done', this)">Done</button>
-          <button class="filter-btn" data-filter="niko" onclick="setTodoFilter('niko', this)">💜 Niko</button>
-          <button class="filter-btn" data-filter="thierry" onclick="setTodoFilter('thierry', this)">🩷 Thierry</button>
+          <button class="filter-btn" data-filter="niko" onclick="setTodoFilter('niko', this)">Niko</button>
+          <button class="filter-btn" data-filter="thierry" onclick="setTodoFilter('thierry', this)">Thierry</button>
           <button class="filter-btn" data-filter="unassigned" onclick="setTodoFilter('unassigned', this)">⚪ Unassigned</button>
         </div>
 
@@ -600,11 +600,11 @@ function toggleTheme() {
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 (function () {
-  if (localStorage.getItem('theme') === 'light') {
-    document.documentElement.classList.add('light');
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.remove('light');
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('themeBtn');
-      if (btn) btn.textContent = '🌙 Dark';
+      if (btn) btn.textContent = '☀️ Light';
     });
   }
 })();
@@ -782,8 +782,8 @@ function deletePriority(id) {
 }
 
 function ownerBadge(owner) {
-  if (owner === 'niko') return '<span class="owner-badge owner-niko">💜 Niko</span>';
-  if (owner === 'thierry') return '<span class="owner-badge owner-thierry">🩷 Thierry</span>';
+  if (owner === 'niko') return '<span class="owner-badge owner-niko">Niko</span>';
+  if (owner === 'thierry') return '<span class="owner-badge owner-thierry">Thierry</span>';
   if (owner === 'unassigned') return '<span class="owner-badge owner-unassigned">⚪ Unassigned</span>';
   return '<span class="owner-badge" style="background:var(--surface);color:var(--muted);border:1px solid var(--border)">👥 Both</span>';
 }
@@ -943,7 +943,7 @@ function renderOverviewSnapshots() {
 
   const todosEl = document.getElementById('overview-todos');
   if (todosEl) {
-    const owners = [['niko', '💜 Niko'], ['thierry', '🩷 Thierry'], ['unassigned', '⚪ Unassigned']];
+    const owners = [['niko', 'Niko'], ['thierry', 'Thierry'], ['unassigned', '⚪ Unassigned']];
     todosEl.innerHTML = owners.map(([key, label]) => {
       const items = todos.filter(t => !t.done && t.owner === key).sort((a, b) => a.createdAt - b.createdAt).slice(0, 3);
       const rows = items.length

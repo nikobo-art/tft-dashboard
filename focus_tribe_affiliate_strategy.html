@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,7 +527,7 @@
     <a href="#priority">Priority</a>
     <a href="#outreach">Outreach</a>
   </div>
-  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
 </nav>
 
 <div class="hero">
@@ -727,8 +727,8 @@
     </div>
     <div class="tabs" id="owner-tabs">
       <button class="tab active" onclick="setFilter('owner','all',this)">👥 Both</button>
-      <button class="tab" onclick="setFilter('owner','niko',this)" style="border-color:rgba(124,106,255,0.4); color:var(--accent)">💜 Niko's List</button>
-      <button class="tab" onclick="setFilter('owner','thierry',this)" style="border-color:rgba(255,106,138,0.4); color:var(--accent2)">🩷 Thierry's List</button>
+      <button class="tab" onclick="setFilter('owner','niko',this)" style="border-color:rgba(124,106,255,0.4); color:var(--accent)">Niko's List</button>
+      <button class="tab" onclick="setFilter('owner','thierry',this)" style="border-color:rgba(255,106,138,0.4); color:var(--accent2)">Thierry's List</button>
     </div>
   </div>
 
@@ -900,8 +900,8 @@ function contactHtml(inf) {
 }
 
 function ownerBadge(owner) {
-  if (owner === 'niko') return '<span class="owner-badge owner-niko">💜 Niko</span>';
-  return '<span class="owner-badge owner-thierry">🩷 Thierry</span>';
+  if (owner === 'niko') return '<span class="owner-badge owner-niko">Niko</span>';
+  return '<span class="owner-badge owner-thierry">Thierry</span>';
 }
 
 function buildCard(inf) {
@@ -949,11 +949,11 @@ function toggleTheme() {
 // Restore saved preference
 (function() {
   const saved = localStorage.getItem('theme');
-  if (saved === 'light') {
-    document.documentElement.classList.add('light');
+  if (saved === 'dark') {
+    document.documentElement.classList.remove('light');
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('themeBtn');
-      if (btn) btn.textContent = '🌙 Dark';
+      if (btn) btn.textContent = '☀️ Light';
     });
   }
 })();
