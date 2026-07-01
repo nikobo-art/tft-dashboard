@@ -283,6 +283,7 @@
   }
   .owner-niko { background: rgba(124,106,255,0.12); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
   .owner-thierry { background: rgba(255,106,138,0.12); color: var(--accent2); border: 1px solid rgba(255,106,138,0.3); }
+  .owner-both { background: linear-gradient(90deg, rgba(124,106,255,0.15), rgba(255,106,138,0.15)); color: var(--text); border: 1px solid var(--border); }
   .owner-unassigned { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
 
   .icon-btn {
@@ -376,7 +377,7 @@
   .mini-card .mini-title { font-size: 0.85rem; font-weight: 600; word-break: break-word; }
   .mini-card .mini-meta { display: flex; gap: 0.4rem; flex-shrink: 0; }
 
-  .owner-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .owner-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; }
   .owner-col-header { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
   .mini-todo-row {
     display: flex;
@@ -502,6 +503,7 @@
           <input type="text" id="priority-input" placeholder="New priority (e.g. Land 5 tier-1 influencer replies)">
           <button class="btn" onclick="addPriority()">Add</button>
         </div>
+        <p style="color:var(--muted); font-size:0.82rem; margin-bottom:1.25rem;">Star up to 3 priorities to feature them on the Overview.</p>
         <div class="priority-list" id="priority-list"></div>
       </div>
     </div>
@@ -519,6 +521,7 @@
           <select id="todo-owner">
             <option value="niko">Niko</option>
             <option value="thierry">Thierry</option>
+            <option value="both">Both</option>
             <option value="unassigned">⚪ Unassigned</option>
           </select>
           <button class="btn" onclick="addTodo()">Add</button>
@@ -530,6 +533,7 @@
           <button class="filter-btn" data-filter="done" onclick="setTodoFilter('done', this)">Done</button>
           <button class="filter-btn" data-filter="niko" onclick="setTodoFilter('niko', this)">Niko</button>
           <button class="filter-btn" data-filter="thierry" onclick="setTodoFilter('thierry', this)">Thierry</button>
+          <button class="filter-btn" data-filter="both" onclick="setTodoFilter('both', this)">Both</button>
           <button class="filter-btn" data-filter="unassigned" onclick="setTodoFilter('unassigned', this)">⚪ Unassigned</button>
         </div>
 
@@ -818,7 +822,7 @@ function addPriority() {
   const input = document.getElementById('priority-input');
   const title = input.value.trim();
   if (!title) return;
-  const item = { title, status: 'todo', createdAt: Date.now() };
+  const item = { title, status: 'todo', starred: false, createdAt: Date.now() };
   if (usingFirestore) {
     db.collection('priorities').add(item);
   } else {
@@ -836,6 +840,24 @@ function setPriorityStatus(id, status) {
   } else {
     const p = priorities.find(x => x.id === id);
     if (p) { p.status = status; persistLocal(); renderPriorities(); renderStats(); }
+  }
+}
+
+function togglePriorityStar(id) {
+  const p = priorities.find(x => x.id === id);
+  if (!p) return;
+  if (!p.starred && priorities.filter(x => x.starred).length >= 3) {
+    alert('You can only feature 3 priorities at a time. Unstar one first.');
+    return;
+  }
+  const starred = !p.starred;
+  if (usingFirestore) {
+    db.collection('priorities').doc(id).update({ starred });
+  } else {
+    p.starred = starred;
+    persistLocal();
+    renderPriorities();
+    renderStats();
   }
 }
 
@@ -871,6 +893,7 @@ function saveEditPriority(id) {
 function ownerBadge(owner) {
   if (owner === 'niko') return '<span class="owner-badge owner-niko">Niko</span>';
   if (owner === 'thierry') return '<span class="owner-badge owner-thierry">Thierry</span>';
+  if (owner === 'both') return '<span class="owner-badge owner-both">Both</span>';
   return '<span class="owner-badge owner-unassigned">⚪ Unassigned</span>';
 }
 
@@ -882,7 +905,10 @@ function renderPriorities() {
     return;
   }
   const order = { todo: 0, in_progress: 1, done: 2 };
-  const sorted = [...priorities].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+  const sorted = [...priorities].sort((a, b) => {
+    if (!!b.starred !== !!a.starred) return (b.starred ? 1 : 0) - (a.starred ? 1 : 0);
+    return (order[a.status] ?? 0) - (order[b.status] ?? 0);
+  });
   list.innerHTML = sorted.map(p => {
     if (p.id === editingPriorityId) {
       return `
@@ -904,6 +930,7 @@ function renderPriorities() {
           <div class="priority-title">${escapeHtml(p.title)}</div>
         </div>
         <div class="priority-actions">
+          <button class="icon-btn star-btn" onclick="togglePriorityStar('${p.id}')" title="${p.starred ? 'Unstar' : 'Feature on Overview'}">${p.starred ? '★' : '☆'}</button>
           <select class="status-select status-${p.status}" onchange="setPriorityStatus('${p.id}', this.value)">
             <option value="todo" ${p.status === 'todo' ? 'selected' : ''}>Not started</option>
             <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In progress</option>
@@ -1059,10 +1086,6 @@ function renderStats() {
 }
 
 /* ---- Overview snapshots ---- */
-function topActive(list, n) {
-  return [...list].filter(i => i.status !== 'done').sort((a, b) => a.createdAt - b.createdAt).slice(0, n);
-}
-
 function miniCard(item) {
   return `<div class="mini-card"><div class="mini-title">${escapeHtml(item.title)}</div></div>`;
 }
@@ -1076,13 +1099,13 @@ function renderOverviewSnapshots() {
 
   const prioritiesEl = document.getElementById('overview-priorities');
   if (prioritiesEl) {
-    const top = topActive(priorities, 3);
-    prioritiesEl.innerHTML = top.length ? top.map(miniCard).join('') : '<div class="empty-state small">No active priorities.</div>';
+    const starred = priorities.filter(p => p.starred).sort((a, b) => a.createdAt - b.createdAt);
+    prioritiesEl.innerHTML = starred.length ? starred.map(miniCard).join('') : '<div class="empty-state small">Star up to 3 priorities in the Priorities tab to feature them here.</div>';
   }
 
   const todosEl = document.getElementById('overview-todos');
   if (todosEl) {
-    const owners = [['niko', 'Niko'], ['thierry', 'Thierry'], ['unassigned', '⚪ Unassigned']];
+    const owners = [['niko', 'Niko'], ['thierry', 'Thierry'], ['both', 'Both'], ['unassigned', '⚪ Unassigned']];
     todosEl.innerHTML = owners.map(([key, label]) => {
       const items = todos.filter(t => !t.done && t.owner === key).sort((a, b) => a.createdAt - b.createdAt).slice(0, 3);
       const rows = items.length
