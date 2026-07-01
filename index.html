@@ -8,35 +8,35 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0f13;
-    --surface: #1a1a22;
-    --surface2: #22222d;
-    --border: #2e2e3d;
-    --accent: #7c6aff;
+    --bg: #0b1220;
+    --surface: #131c2e;
+    --surface2: #1a2338;
+    --border: #263252;
+    --accent: #ff6b1a;
     --accent2: #ff6a8a;
-    --accent3: #6affb8;
-    --text: #e8e8f0;
-    --muted: #8888a0;
-    --tier1: #6affb8;
-    --tier2: #ffc96a;
+    --accent3: #22c55e;
+    --text: #eaf0ff;
+    --muted: #8b96b8;
+    --tier1: #22c55e;
+    --tier2: #f5a623;
     --tier3: #ff6a8a;
-    --nav-bg: rgba(15,15,19,0.92);
+    --nav-bg: rgba(11,18,32,0.92);
   }
 
   :root.light {
-    --bg: #f5f5f8;
+    --bg: #f7f8fc;
     --surface: #ffffff;
-    --surface2: #eeeef5;
-    --border: #d8d8e8;
-    --accent: #5b47f5;
+    --surface2: #eef1f8;
+    --border: #dfe4f0;
+    --accent: #ff6b1a;
     --accent2: #e0365a;
-    --accent3: #18a869;
-    --text: #1a1a2e;
-    --muted: #606080;
-    --tier1: #18a869;
-    --tier2: #d4850a;
+    --accent3: #16a34a;
+    --text: #10192e;
+    --muted: #64708a;
+    --tier1: #16a34a;
+    --tier2: #d97706;
     --tier3: #e0365a;
-    --nav-bg: rgba(245,245,248,0.92);
+    --nav-bg: rgba(247,248,252,0.92);
   }
 
   body {
@@ -281,9 +281,9 @@
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
   }
-  .owner-niko { background: rgba(124,106,255,0.12); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
+  .owner-niko { background: rgba(255,107,26,0.12); color: var(--accent); border: 1px solid rgba(255,107,26,0.3); }
   .owner-thierry { background: rgba(255,106,138,0.12); color: var(--accent2); border: 1px solid rgba(255,106,138,0.3); }
-  .owner-both { background: linear-gradient(90deg, rgba(124,106,255,0.15), rgba(255,106,138,0.15)); color: var(--text); border: 1px solid var(--border); }
+  .owner-both { background: linear-gradient(90deg, rgba(255,107,26,0.15), rgba(255,106,138,0.15)); color: var(--text); border: 1px solid var(--border); }
   .owner-unassigned { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
 
   .icon-btn {
@@ -347,10 +347,53 @@
   .empty-state { color: var(--muted); font-size: 0.88rem; padding: 1.5rem 0; text-align: center; }
   .empty-state.small { padding: 0.75rem 0; font-size: 0.8rem; }
 
+  /* HERO BANNER (Overview welcome image) */
+  .hero-banner {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2rem;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    background-image: url('hero-image.jpg'), linear-gradient(135deg, #0b1220 0%, #1a2744 55%, #2a1a3d 100%);
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+  }
+  .hero-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(11,18,32,0.9) 0%, rgba(11,18,32,0.65) 55%, rgba(11,18,32,0.3) 100%);
+  }
+  .hero-banner-content { position: relative; z-index: 1; max-width: 580px; }
+  .hero-banner-eyebrow {
+    display: inline-block;
+    background: rgba(255,107,26,0.18);
+    color: #ffb27a;
+    border: 1px solid rgba(255,107,26,0.4);
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.1rem;
+  }
+  .hero-banner h1 { color: #fff; font-size: 2.3rem; font-weight: 800; line-height: 1.15; margin-bottom: 0.6rem; }
+  .hero-banner p { color: rgba(255,255,255,0.78); font-size: 1.05rem; }
+
+  @media (max-width: 700px) {
+    .hero-banner { padding: 2rem 1.5rem; min-height: 180px; }
+    .hero-banner h1 { font-size: 1.7rem; }
+    .hero-banner p { font-size: 0.92rem; }
+  }
+
   /* HERO SECTION (Overview — Top Goals & Priorities) */
   .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 2rem; }
   .hero-col { border-radius: 20px; padding: 1.75rem; border: 1px solid var(--border); }
-  .hero-col.goals-col { background: linear-gradient(135deg, rgba(124,106,255,0.08), rgba(124,106,255,0.01)); }
+  .hero-col.goals-col { background: linear-gradient(135deg, rgba(255,107,26,0.1), rgba(255,107,26,0.01)); }
   .hero-col.priorities-col { background: linear-gradient(135deg, rgba(255,201,106,0.1), rgba(255,201,106,0.01)); }
   .hero-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
   .hero-title { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
@@ -388,7 +431,7 @@
     font-size: 1.15rem;
     flex-shrink: 0;
   }
-  .goals-col .hero-rank { background: rgba(124,106,255,0.15); color: var(--accent); }
+  .goals-col .hero-rank { background: rgba(255,107,26,0.15); color: var(--accent); }
   .priorities-col .hero-rank { background: rgba(255,201,106,0.2); color: var(--tier2); }
   .hero-item-body { flex: 1 1 auto; min-width: 0; }
   .hero-item-title { font-size: 1.15rem; font-weight: 700; word-break: break-word; margin-bottom: 0.35rem; }
@@ -485,9 +528,13 @@
   <main>
     <!-- OVERVIEW -->
     <div class="view active" id="view-overview">
-      <div class="page-header">
-        <h1>Overview</h1>
-        <p>Where things stand for The Focus Tribe right now.</p>
+      <div class="hero-banner">
+        <div class="hero-banner-overlay"></div>
+        <div class="hero-banner-content">
+          <div class="hero-banner-eyebrow">🎯 The Focus Tribe</div>
+          <h1>Welcome back.</h1>
+          <p>Here's where your goals, priorities, and next steps stand right now.</p>
+        </div>
       </div>
 
       <div class="hero-section">
