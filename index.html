@@ -347,11 +347,14 @@
   .empty-state { color: var(--muted); font-size: 0.88rem; padding: 1.5rem 0; text-align: center; }
   .empty-state.small { padding: 0.75rem 0; font-size: 0.8rem; }
 
-  /* SNAPSHOT GRID (Overview) */
-  .snapshot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
-  .snapshot-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; }
-  .snapshot-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .snapshot-header h3 { font-size: 0.95rem; font-weight: 700; }
+  /* HERO SECTION (Overview — Top Goals & Priorities) */
+  .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 2rem; }
+  .hero-col { border-radius: 20px; padding: 1.75rem; border: 1px solid var(--border); }
+  .hero-col.goals-col { background: linear-gradient(135deg, rgba(124,106,255,0.08), rgba(124,106,255,0.01)); }
+  .hero-col.priorities-col { background: linear-gradient(135deg, rgba(255,201,106,0.1), rgba(255,201,106,0.01)); }
+  .hero-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+  .hero-title { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+  .hero-icon { font-size: 1.5rem; }
   .view-all-link {
     background: none;
     border: none;
@@ -360,22 +363,42 @@
     font-weight: 600;
     cursor: pointer;
     padding: 0.2rem 0;
+    white-space: nowrap;
   }
   .view-all-link:hover { text-decoration: underline; }
 
-  .mini-list { display: flex; flex-direction: column; gap: 0.5rem; }
-  .mini-card {
-    background: var(--surface2);
+  .hero-list { display: flex; flex-direction: column; gap: 1rem; }
+  .hero-item {
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.6rem 0.85rem;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem;
+    gap: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .mini-card .mini-title { font-size: 0.85rem; font-weight: 600; word-break: break-word; }
-  .mini-card .mini-meta { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .hero-item:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+  .hero-rank {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .goals-col .hero-rank { background: rgba(124,106,255,0.15); color: var(--accent); }
+  .priorities-col .hero-rank { background: rgba(255,201,106,0.2); color: var(--tier2); }
+  .hero-item-body { flex: 1 1 auto; min-width: 0; }
+  .hero-item-title { font-size: 1.15rem; font-weight: 700; word-break: break-word; margin-bottom: 0.35rem; }
+  .hero-item-status { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hero-item-status.status-todo { color: var(--muted); }
+  .hero-item-status.status-in_progress { color: var(--tier2); }
+  .hero-item-status.status-done { color: var(--tier1); }
+
+  .stats-section { margin-top: 0.5rem; }
+  .stats-heading { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.85rem; }
 
   .owner-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; }
   .owner-col-header { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
@@ -391,6 +414,7 @@
 
   @media (max-width: 700px) {
     .owner-columns { grid-template-columns: 1fr; }
+    .hero-section { grid-template-columns: 1fr; }
   }
 
   /* AFFILIATE TAB (iframe) */
@@ -466,32 +490,35 @@
         <p>Where things stand for The Focus Tribe right now.</p>
       </div>
 
-      <div class="stats-row" id="overview-stats"></div>
-
-      <div class="snapshot-grid">
-        <div class="snapshot-block">
-          <div class="snapshot-header">
-            <h3>🎯 Top 3 Goals</h3>
+      <div class="hero-section">
+        <div class="hero-col goals-col">
+          <div class="hero-header">
+            <span class="hero-title"><span class="hero-icon">🎯</span> Top Goals</span>
             <button class="view-all-link" onclick="goToTab('goals')">View all →</button>
           </div>
-          <div class="mini-list" id="overview-goals"></div>
+          <div class="hero-list" id="overview-goals"></div>
         </div>
 
-        <div class="snapshot-block">
-          <div class="snapshot-header">
-            <h3>⚡ Top 3 Priorities</h3>
+        <div class="hero-col priorities-col">
+          <div class="hero-header">
+            <span class="hero-title"><span class="hero-icon">⚡</span> Top Priorities</span>
             <button class="view-all-link" onclick="goToTab('priorities')">View all →</button>
           </div>
-          <div class="mini-list" id="overview-priorities"></div>
+          <div class="hero-list" id="overview-priorities"></div>
         </div>
+      </div>
 
-        <div class="snapshot-block">
-          <div class="snapshot-header">
-            <h3>✅ Top To-Dos</h3>
-            <button class="view-all-link" onclick="goToTab('todos')">View all →</button>
-          </div>
-          <div class="owner-columns" id="overview-todos"></div>
+      <div class="block">
+        <div class="block-header">
+          <h2>✅ Top To-Dos</h2>
+          <button class="view-all-link" onclick="goToTab('todos')">View all →</button>
         </div>
+        <div class="owner-columns" id="overview-todos"></div>
+      </div>
+
+      <div class="stats-section">
+        <h3 class="stats-heading">Quick Stats</h3>
+        <div class="stats-row" id="overview-stats"></div>
       </div>
     </div>
 
@@ -1103,21 +1130,35 @@ function renderStats() {
 }
 
 /* ---- Overview snapshots ---- */
-function miniCard(item) {
-  return `<div class="mini-card"><div class="mini-title">${escapeHtml(item.title)}</div></div>`;
+function statusLabel(status) {
+  if (status === 'in_progress') return 'In progress';
+  if (status === 'done') return 'Done';
+  return 'Not started';
+}
+
+function heroItem(item, rank) {
+  return `
+    <div class="hero-item">
+      <div class="hero-rank">${rank}</div>
+      <div class="hero-item-body">
+        <div class="hero-item-title">${escapeHtml(item.title)}</div>
+        <div class="hero-item-status status-${item.status}">${statusLabel(item.status)}</div>
+      </div>
+    </div>
+  `;
 }
 
 function renderOverviewSnapshots() {
   const goalsEl = document.getElementById('overview-goals');
   if (goalsEl) {
     const starred = goals.filter(g => g.starred).sort((a, b) => a.createdAt - b.createdAt);
-    goalsEl.innerHTML = starred.length ? starred.map(miniCard).join('') : '<div class="empty-state small">Star up to 3 goals in the Goals tab to feature them here.</div>';
+    goalsEl.innerHTML = starred.length ? starred.map((g, i) => heroItem(g, i + 1)).join('') : '<div class="empty-state">Star up to 3 goals in the Goals tab to feature them here.</div>';
   }
 
   const prioritiesEl = document.getElementById('overview-priorities');
   if (prioritiesEl) {
     const starred = priorities.filter(p => p.starred).sort((a, b) => a.createdAt - b.createdAt);
-    prioritiesEl.innerHTML = starred.length ? starred.map(miniCard).join('') : '<div class="empty-state small">Star up to 3 priorities in the Priorities tab to feature them here.</div>';
+    prioritiesEl.innerHTML = starred.length ? starred.map((p, i) => heroItem(p, i + 1)).join('') : '<div class="empty-state">Star up to 3 priorities in the Priorities tab to feature them here.</div>';
   }
 
   const todosEl = document.getElementById('overview-todos');
