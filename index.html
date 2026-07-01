@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Focus Tribe — Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222d;
+    --border: #2e2e3d;
+    --accent: #7c6aff;
+    --accent2: #ff6a8a;
+    --accent3: #6affb8;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --tier1: #6affb8;
+    --tier2: #ffc96a;
+    --tier3: #ff6a8a;
+    --nav-bg: rgba(15,15,19,0.92);
+  }
+
+  :root.light {
+    --bg: #f5f5f8;
+    --surface: #ffffff;
+    --surface2: #eeeef5;
+    --border: #d8d8e8;
+    --accent: #5b47f5;
+    --accent2: #e0365a;
+    --accent3: #18a869;
+    --text: #1a1a2e;
+    --muted: #606080;
+    --tier1: #18a869;
+    --tier2: #d4850a;
+    --tier3: #e0365a;
+    --nav-bg: rgba(245,245,248,0.92);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* LOCK SCREEN */
+  #lock-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .lock-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .lock-box .logo { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .lock-box h1 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .lock-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .lock-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .lock-box input:focus { outline: none; border-color: var(--accent); }
+  .lock-box button {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .lock-box button:hover { opacity: 0.9; }
+  .lock-error { color: var(--accent2); font-size: 0.82rem; margin-top: 0.75rem; min-height: 1.2em; }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 56px;
+    flex-wrap: wrap;
+  }
+  .nav-logo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .nav-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+  .nav-tab {
+    background: none;
+    border: none;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .nav-tab:hover { color: var(--text); background: var(--surface2); }
+  .nav-tab.active { color: var(--text); background: var(--surface2); box-shadow: inset 0 -2px 0 var(--accent); }
+  .nav-right { margin-left: auto; display: flex; gap: 0.6rem; align-items: center; }
+  .theme-toggle, .lock-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover, .lock-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  .sync-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .sync-live { background: rgba(106,255,184,0.12); color: var(--tier1); border: 1px solid rgba(106,255,184,0.3); }
+  .sync-local { background: rgba(255,201,106,0.12); color: var(--tier2); border: 1px solid rgba(255,201,106,0.3); }
+
+  /* MAIN LAYOUT */
+  main { max-width: 1080px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .page-header p { color: var(--muted); font-size: 0.92rem; }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+  }
+  .stat-card .val { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+
+  /* SECTION BLOCKS */
+  .block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap; }
+  .block-header h2 { font-size: 1.1rem; font-weight: 700; }
+
+  /* ADD FORM */
+  .add-form { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .add-form input[type="text"] {
+    flex: 1 1 220px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+  .add-form select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    color: var(--text);
+    font-size: 0.85rem;
+  }
+  .add-form input:focus, .add-form select:focus { outline: none; border-color: var(--accent); }
+  .btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.2rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+
+  /* FILTER TABS */
+  .filter-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: var(--surface2); color: var(--text); }
+  .filter-btn.active { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+
+  /* PRIORITY CARDS */
+  .priority-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .priority-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .priority-main { flex: 1 1 240px; min-width: 0; }
+  .priority-title { font-weight: 700; font-size: 0.95rem; word-break: break-word; }
+  .priority-meta { display: flex; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
+  .priority-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  .status-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .status-todo { color: var(--muted); }
+  .status-in_progress { color: var(--tier2); }
+  .status-done { color: var(--tier1); }
+
+  .owner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+  }
+  .owner-niko { background: rgba(124,106,255,0.12); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
+  .owner-thierry { background: rgba(255,106,138,0.12); color: var(--accent2); border: 1px solid rgba(255,106,138,0.3); }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
+  /* TODO LIST */
+  .todo-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .todo-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .todo-item.done .todo-text { color: var(--muted); text-decoration: line-through; }
+  .todo-checkbox {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tier1);
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+  .todo-item.done .todo-checkbox { background: rgba(106,255,184,0.15); border-color: var(--tier1); }
+  .todo-text { flex: 1 1 auto; font-size: 0.9rem; word-break: break-word; }
+
+  .progress-bar { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 4px; transition: width 0.3s; }
+
+  .empty-state { color: var(--muted); font-size: 0.88rem; padding: 1.5rem 0; text-align: center; }
+
+  /* AFFILIATE TAB (iframe) */
+  .iframe-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; height: calc(100vh - 200px); min-height: 500px; }
+  .iframe-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    nav { padding: 0 1rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="logo">🎯</div>
+    <h1>The Focus Tribe Dashboard</h1>
+    <p>Internal — Niko &amp; Thierry only</p>
+    <input type="password" id="pw-input" placeholder="Passphrase" autocomplete="off">
+    <button onclick="attemptUnlock()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <nav>
+    <div class="nav-logo">🎯 Focus Tribe</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-view="overview" onclick="switchView('overview', this)">Overview</button>
+      <button class="nav-tab" data-view="todos" onclick="switchView('todos', this)">To-Dos</button>
+      <button class="nav-tab" data-view="affiliate" onclick="switchView('affiliate', this)">Affiliate Strategy</button>
+    </div>
+    <div class="nav-right">
+      <span class="sync-badge sync-local" id="sync-badge">● Local only</span>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+      <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <div class="view active" id="view-overview">
+      <div class="page-header">
+        <h1>Overview</h1>
+        <p>Where things stand for The Focus Tribe right now.</p>
+      </div>
+
+      <div class="stats-row" id="overview-stats"></div>
+
+      <div class="block">
+        <div class="block-header">
+          <h2>Current Priorities</h2>
+        </div>
+        <div class="add-form">
+          <input type="text" id="priority-input" placeholder="New priority (e.g. Land 5 tier-1 influencer replies)">
+          <select id="priority-owner">
+            <option value="niko">💜 Niko</option>
+            <option value="thierry">🩷 Thierry</option>
+            <option value="both">👥 Both</option>
+          </select>
+          <button class="btn" onclick="addPriority()">Add</button>
+        </div>
+        <div class="priority-list" id="priority-list"></div>
+      </div>
+    </div>
+
+    <!-- TODOS -->
+    <div class="view" id="view-todos">
+      <div class="page-header">
+        <h1>To-Dos</h1>
+        <p>Shared task list — next steps for both of you.</p>
+      </div>
+
+      <div class="block">
+        <div class="add-form">
+          <input type="text" id="todo-input" placeholder="New to-do (e.g. Follow up with Ellie @ellharve)">
+          <select id="todo-owner">
+            <option value="niko">💜 Niko</option>
+            <option value="thierry">🩷 Thierry</option>
+          </select>
+          <button class="btn" onclick="addTodo()">Add</button>
+        </div>
+
+        <div class="filter-row" id="todo-filters">
+          <button class="filter-btn active" data-filter="all" onclick="setTodoFilter('all', this)">All</button>
+          <button class="filter-btn" data-filter="open" onclick="setTodoFilter('open', this)">Open</button>
+          <button class="filter-btn" data-filter="done" onclick="setTodoFilter('done', this)">Done</button>
+          <button class="filter-btn" data-filter="niko" onclick="setTodoFilter('niko', this)">💜 Niko</button>
+          <button class="filter-btn" data-filter="thierry" onclick="setTodoFilter('thierry', this)">🩷 Thierry</button>
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="todo-progress" style="width:0%"></div></div>
+
+        <div class="todo-list" id="todo-list"></div>
+      </div>
+    </div>
+
+    <!-- AFFILIATE STRATEGY -->
+    <div class="view" id="view-affiliate">
+      <div class="page-header">
+        <h1>Affiliate Strategy</h1>
+        <p>The original influencer outreach playbook.</p>
+      </div>
+      <div class="iframe-wrap">
+        <iframe src="focus_tribe_affiliate_strategy.html" title="Affiliate Strategy"></iframe>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+/* ---------- PASSWORD GATE ---------- */
+const PASS_HASH = '486bea97c72f91371c16fcfca475f8bca7be24748b629290c766d703a72fa801';
+
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function attemptUnlock() {
+  const pw = document.getElementById('pw-input').value;
+  const hash = await sha256Hex(pw);
+  if (hash === PASS_HASH) {
+    localStorage.setItem('ft_unlocked', '1');
+    showApp();
+  } else {
+    document.getElementById('lock-error').textContent = 'Wrong passphrase.';
+  }
+}
+
+document.getElementById('pw-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') attemptUnlock();
+});
+
+function lockApp() {
+  localStorage.removeItem('ft_unlocked');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('lock-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('lock-error').textContent = '';
+}
+
+function showApp() {
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initStore();
+}
+
+if (localStorage.getItem('ft_unlocked') === '1') {
+  showApp();
+}
+
+/* ---------- THEME ---------- */
+function toggleTheme() {
+  const root = document.documentElement;
+  const btn = document.getElementById('themeBtn');
+  const isLight = root.classList.toggle('light');
+  btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+(function () {
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themeBtn');
+      if (btn) btn.textContent = '🌙 Dark';
+    });
+  }
+})();
+
+/* ---------- VIEW SWITCHING ---------- */
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ---------- DATA STORE (Firestore if configured, else localStorage) ---------- */
+let db = null;
+let usingFirestore = false;
+let priorities = [];
+let todos = [];
+let todoFilter = 'all';
+
+function initStore() {
+  const cfg = window.FIREBASE_CONFIG;
+  if (cfg && cfg.apiKey) {
+    try {
+      firebase.initializeApp(cfg);
+      db = firebase.firestore();
+      usingFirestore = true;
+      document.getElementById('sync-badge').textContent = '● Live sync';
+      document.getElementById('sync-badge').className = 'sync-badge sync-live';
+      db.collection('priorities').orderBy('createdAt', 'asc').onSnapshot(snap => {
+        priorities = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPriorities();
+        renderStats();
+      });
+      db.collection('todos').orderBy('createdAt', 'asc').onSnapshot(snap => {
+        todos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderTodos();
+        renderStats();
+      });
+      return;
+    } catch (e) {
+      console.error('Firebase init failed, falling back to local mode:', e);
+    }
+  }
+  // Local-only fallback
+  priorities = JSON.parse(localStorage.getItem('ft_priorities') || '[]');
+  todos = JSON.parse(localStorage.getItem('ft_todos') || '[]');
+  renderPriorities();
+  renderTodos();
+  renderStats();
+}
+
+function persistLocal() {
+  localStorage.setItem('ft_priorities', JSON.stringify(priorities));
+  localStorage.setItem('ft_todos', JSON.stringify(todos));
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+/* ---- Priorities ---- */
+function addPriority() {
+  const input = document.getElementById('priority-input');
+  const title = input.value.trim();
+  if (!title) return;
+  const owner = document.getElementById('priority-owner').value;
+  const item = { title, owner, status: 'todo', createdAt: Date.now() };
+  if (usingFirestore) {
+    db.collection('priorities').add(item);
+  } else {
+    priorities.push({ id: uid(), ...item });
+    persistLocal();
+    renderPriorities();
+    renderStats();
+  }
+  input.value = '';
+}
+
+function setPriorityStatus(id, status) {
+  if (usingFirestore) {
+    db.collection('priorities').doc(id).update({ status });
+  } else {
+    const p = priorities.find(x => x.id === id);
+    if (p) { p.status = status; persistLocal(); renderPriorities(); renderStats(); }
+  }
+}
+
+function deletePriority(id) {
+  if (usingFirestore) {
+    db.collection('priorities').doc(id).delete();
+  } else {
+    priorities = priorities.filter(x => x.id !== id);
+    persistLocal();
+    renderPriorities();
+    renderStats();
+  }
+}
+
+function ownerBadge(owner) {
+  if (owner === 'niko') return '<span class="owner-badge owner-niko">💜 Niko</span>';
+  if (owner === 'thierry') return '<span class="owner-badge owner-thierry">🩷 Thierry</span>';
+  return '<span class="owner-badge" style="background:var(--surface);color:var(--muted);border:1px solid var(--border)">👥 Both</span>';
+}
+
+function renderPriorities() {
+  const list = document.getElementById('priority-list');
+  if (!list) return;
+  if (priorities.length === 0) {
+    list.innerHTML = '<div class="empty-state">No priorities yet. Add the top things you\'re focused on right now.</div>';
+    return;
+  }
+  const order = { todo: 0, in_progress: 1, done: 2 };
+  const sorted = [...priorities].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+  list.innerHTML = sorted.map(p => `
+    <div class="priority-card">
+      <div class="priority-main">
+        <div class="priority-title">${escapeHtml(p.title)}</div>
+        <div class="priority-meta">${ownerBadge(p.owner)}</div>
+      </div>
+      <div class="priority-actions">
+        <select class="status-select status-${p.status}" onchange="setPriorityStatus('${p.id}', this.value)">
+          <option value="todo" ${p.status === 'todo' ? 'selected' : ''}>Not started</option>
+          <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In progress</option>
+          <option value="done" ${p.status === 'done' ? 'selected' : ''}>Done</option>
+        </select>
+        <button class="icon-btn" onclick="deletePriority('${p.id}')" title="Delete">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---- Todos ---- */
+function addTodo() {
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const owner = document.getElementById('todo-owner').value;
+  const item = { text, owner, done: false, createdAt: Date.now() };
+  if (usingFirestore) {
+    db.collection('todos').add(item);
+  } else {
+    todos.push({ id: uid(), ...item });
+    persistLocal();
+    renderTodos();
+    renderStats();
+  }
+  input.value = '';
+}
+
+function toggleTodo(id, done) {
+  if (usingFirestore) {
+    db.collection('todos').doc(id).update({ done: !done });
+  } else {
+    const t = todos.find(x => x.id === id);
+    if (t) { t.done = !t.done; persistLocal(); renderTodos(); renderStats(); }
+  }
+}
+
+function deleteTodo(id) {
+  if (usingFirestore) {
+    db.collection('todos').doc(id).delete();
+  } else {
+    todos = todos.filter(x => x.id !== id);
+    persistLocal();
+    renderTodos();
+    renderStats();
+  }
+}
+
+function setTodoFilter(filter, btn) {
+  todoFilter = filter;
+  document.querySelectorAll('#todo-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTodos();
+}
+
+function filteredTodos() {
+  return todos.filter(t => {
+    if (todoFilter === 'all') return true;
+    if (todoFilter === 'open') return !t.done;
+    if (todoFilter === 'done') return t.done;
+    return t.owner === todoFilter;
+  });
+}
+
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  if (!list) return;
+  const items = filteredTodos();
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state">No to-dos match this filter.</div>';
+  } else {
+    list.innerHTML = items.map(t => `
+      <div class="todo-item ${t.done ? 'done' : ''}">
+        <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
+        <div class="todo-text">${escapeHtml(t.text)}</div>
+        ${ownerBadge(t.owner)}
+        <button class="icon-btn" onclick="deleteTodo('${t.id}')" title="Delete">✕</button>
+      </div>
+    `).join('');
+  }
+  const total = todos.length;
+  const done = todos.filter(t => t.done).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  const bar = document.getElementById('todo-progress');
+  if (bar) bar.style.width = pct + '%';
+}
+
+/* ---- Stats ---- */
+function renderStats() {
+  const el = document.getElementById('overview-stats');
+  if (!el) return;
+  const openTodos = todos.filter(t => !t.done).length;
+  const doneTodos = todos.filter(t => t.done).length;
+  const activePriorities = priorities.filter(p => p.status !== 'done').length;
+  const donePriorities = priorities.filter(p => p.status === 'done').length;
+  el.innerHTML = `
+    <div class="stat-card"><div class="val">${activePriorities}</div><div class="lbl">Active priorities</div></div>
+    <div class="stat-card"><div class="val">${donePriorities}</div><div class="lbl">Priorities done</div></div>
+    <div class="stat-card"><div class="val">${openTodos}</div><div class="lbl">Open to-dos</div></div>
+    <div class="stat-card"><div class="val">${doneTodos}</div><div class="lbl">To-dos done</div></div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
