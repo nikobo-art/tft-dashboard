@@ -297,6 +297,21 @@
     transition: all 0.15s;
   }
   .icon-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+  .icon-btn.edit-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .icon-btn.star-btn { color: var(--tier2); }
+  .icon-btn.star-btn:hover { color: var(--tier2); border-color: var(--tier2); }
+  .icon-btn.save-btn:hover { color: var(--tier1); border-color: var(--tier1); }
+
+  .edit-input {
+    flex: 1 1 240px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .edit-input:focus { outline: none; }
 
   /* TODO LIST */
   .todo-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -468,13 +483,9 @@
       <div class="block">
         <div class="add-form">
           <input type="text" id="goal-input" placeholder="New goal (e.g. Hit 500 paying members)">
-          <select id="goal-owner">
-            <option value="niko">Niko</option>
-            <option value="thierry">Thierry</option>
-            <option value="both">👥 Both</option>
-          </select>
           <button class="btn" onclick="addGoal()">Add</button>
         </div>
+        <p style="color:var(--muted); font-size:0.82rem; margin-bottom:1.25rem;">Star up to 3 goals to feature them on the Overview.</p>
         <div class="priority-list" id="goal-list"></div>
       </div>
     </div>
@@ -489,11 +500,6 @@
       <div class="block">
         <div class="add-form">
           <input type="text" id="priority-input" placeholder="New priority (e.g. Land 5 tier-1 influencer replies)">
-          <select id="priority-owner">
-            <option value="niko">Niko</option>
-            <option value="thierry">Thierry</option>
-            <option value="both">👥 Both</option>
-          </select>
           <button class="btn" onclick="addPriority()">Add</button>
         </div>
         <div class="priority-list" id="priority-list"></div>
@@ -679,12 +685,13 @@ function uid() {
 }
 
 /* ---- Goals ---- */
+let editingGoalId = null;
+
 function addGoal() {
   const input = document.getElementById('goal-input');
   const title = input.value.trim();
   if (!title) return;
-  const owner = document.getElementById('goal-owner').value;
-  const item = { title, owner, status: 'todo', createdAt: Date.now() };
+  const item = { title, status: 'todo', starred: false, createdAt: Date.now() };
   if (usingFirestore) {
     db.collection('goals').add(item);
   } else {
@@ -705,6 +712,24 @@ function setGoalStatus(id, status) {
   }
 }
 
+function toggleGoalStar(id) {
+  const g = goals.find(x => x.id === id);
+  if (!g) return;
+  if (!g.starred && goals.filter(x => x.starred).length >= 3) {
+    alert('You can only feature 3 goals at a time. Unstar one first.');
+    return;
+  }
+  const starred = !g.starred;
+  if (usingFirestore) {
+    db.collection('goals').doc(id).update({ starred });
+  } else {
+    g.starred = starred;
+    persistLocal();
+    renderGoals();
+    renderStats();
+  }
+}
+
 function deleteGoal(id) {
   if (usingFirestore) {
     db.collection('goals').doc(id).delete();
@@ -716,6 +741,24 @@ function deleteGoal(id) {
   }
 }
 
+function startEditGoal(id) { editingGoalId = id; renderGoals(); }
+function cancelEditGoal() { editingGoalId = null; renderGoals(); }
+
+function saveEditGoal(id) {
+  const input = document.getElementById('edit-goal-input-' + id);
+  const title = input.value.trim();
+  if (!title) return;
+  if (usingFirestore) {
+    db.collection('goals').doc(id).update({ title });
+  } else {
+    const g = goals.find(x => x.id === id);
+    if (g) { g.title = title; persistLocal(); }
+  }
+  editingGoalId = null;
+  renderGoals();
+  renderStats();
+}
+
 function renderGoals() {
   const list = document.getElementById('goal-list');
   if (!list) return;
@@ -724,32 +767,58 @@ function renderGoals() {
     return;
   }
   const order = { todo: 0, in_progress: 1, done: 2 };
-  const sorted = [...goals].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
-  list.innerHTML = sorted.map(g => `
-    <div class="priority-card">
-      <div class="priority-main">
-        <div class="priority-title">${escapeHtml(g.title)}</div>
-        <div class="priority-meta">${ownerBadge(g.owner)}</div>
+  const sorted = [...goals].sort((a, b) => {
+    if (!!b.starred !== !!a.starred) return (b.starred ? 1 : 0) - (a.starred ? 1 : 0);
+    return (order[a.status] ?? 0) - (order[b.status] ?? 0);
+  });
+  list.innerHTML = sorted.map(g => {
+    if (g.id === editingGoalId) {
+      return `
+        <div class="priority-card">
+          <div class="priority-main">
+            <input type="text" class="edit-input" id="edit-goal-input-${g.id}"
+              onkeydown="if(event.key==='Enter') saveEditGoal('${g.id}'); if(event.key==='Escape') cancelEditGoal();">
+          </div>
+          <div class="priority-actions">
+            <button class="icon-btn save-btn" onclick="saveEditGoal('${g.id}')" title="Save">✓</button>
+            <button class="icon-btn" onclick="cancelEditGoal()" title="Cancel">✕</button>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="priority-card">
+        <div class="priority-main">
+          <div class="priority-title">${escapeHtml(g.title)}</div>
+        </div>
+        <div class="priority-actions">
+          <button class="icon-btn star-btn" onclick="toggleGoalStar('${g.id}')" title="${g.starred ? 'Unstar' : 'Feature on Overview'}">${g.starred ? '★' : '☆'}</button>
+          <select class="status-select status-${g.status}" onchange="setGoalStatus('${g.id}', this.value)">
+            <option value="todo" ${g.status === 'todo' ? 'selected' : ''}>Not started</option>
+            <option value="in_progress" ${g.status === 'in_progress' ? 'selected' : ''}>In progress</option>
+            <option value="done" ${g.status === 'done' ? 'selected' : ''}>Done</option>
+          </select>
+          <button class="icon-btn edit-btn" onclick="startEditGoal('${g.id}')" title="Edit">✎</button>
+          <button class="icon-btn" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+        </div>
       </div>
-      <div class="priority-actions">
-        <select class="status-select status-${g.status}" onchange="setGoalStatus('${g.id}', this.value)">
-          <option value="todo" ${g.status === 'todo' ? 'selected' : ''}>Not started</option>
-          <option value="in_progress" ${g.status === 'in_progress' ? 'selected' : ''}>In progress</option>
-          <option value="done" ${g.status === 'done' ? 'selected' : ''}>Done</option>
-        </select>
-        <button class="icon-btn" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+  if (editingGoalId) {
+    const el = document.getElementById('edit-goal-input-' + editingGoalId);
+    const g = goals.find(x => x.id === editingGoalId);
+    if (el && g) { el.value = g.title; el.focus(); }
+  }
 }
 
 /* ---- Priorities ---- */
+let editingPriorityId = null;
+
 function addPriority() {
   const input = document.getElementById('priority-input');
   const title = input.value.trim();
   if (!title) return;
-  const owner = document.getElementById('priority-owner').value;
-  const item = { title, owner, status: 'todo', createdAt: Date.now() };
+  const item = { title, status: 'todo', createdAt: Date.now() };
   if (usingFirestore) {
     db.collection('priorities').add(item);
   } else {
@@ -781,11 +850,28 @@ function deletePriority(id) {
   }
 }
 
+function startEditPriority(id) { editingPriorityId = id; renderPriorities(); }
+function cancelEditPriority() { editingPriorityId = null; renderPriorities(); }
+
+function saveEditPriority(id) {
+  const input = document.getElementById('edit-priority-input-' + id);
+  const title = input.value.trim();
+  if (!title) return;
+  if (usingFirestore) {
+    db.collection('priorities').doc(id).update({ title });
+  } else {
+    const p = priorities.find(x => x.id === id);
+    if (p) { p.title = title; persistLocal(); }
+  }
+  editingPriorityId = null;
+  renderPriorities();
+  renderStats();
+}
+
 function ownerBadge(owner) {
   if (owner === 'niko') return '<span class="owner-badge owner-niko">Niko</span>';
   if (owner === 'thierry') return '<span class="owner-badge owner-thierry">Thierry</span>';
-  if (owner === 'unassigned') return '<span class="owner-badge owner-unassigned">⚪ Unassigned</span>';
-  return '<span class="owner-badge" style="background:var(--surface);color:var(--muted);border:1px solid var(--border)">👥 Both</span>';
+  return '<span class="owner-badge owner-unassigned">⚪ Unassigned</span>';
 }
 
 function renderPriorities() {
@@ -797,22 +883,43 @@ function renderPriorities() {
   }
   const order = { todo: 0, in_progress: 1, done: 2 };
   const sorted = [...priorities].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
-  list.innerHTML = sorted.map(p => `
-    <div class="priority-card">
-      <div class="priority-main">
-        <div class="priority-title">${escapeHtml(p.title)}</div>
-        <div class="priority-meta">${ownerBadge(p.owner)}</div>
+  list.innerHTML = sorted.map(p => {
+    if (p.id === editingPriorityId) {
+      return `
+        <div class="priority-card">
+          <div class="priority-main">
+            <input type="text" class="edit-input" id="edit-priority-input-${p.id}"
+              onkeydown="if(event.key==='Enter') saveEditPriority('${p.id}'); if(event.key==='Escape') cancelEditPriority();">
+          </div>
+          <div class="priority-actions">
+            <button class="icon-btn save-btn" onclick="saveEditPriority('${p.id}')" title="Save">✓</button>
+            <button class="icon-btn" onclick="cancelEditPriority()" title="Cancel">✕</button>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="priority-card">
+        <div class="priority-main">
+          <div class="priority-title">${escapeHtml(p.title)}</div>
+        </div>
+        <div class="priority-actions">
+          <select class="status-select status-${p.status}" onchange="setPriorityStatus('${p.id}', this.value)">
+            <option value="todo" ${p.status === 'todo' ? 'selected' : ''}>Not started</option>
+            <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In progress</option>
+            <option value="done" ${p.status === 'done' ? 'selected' : ''}>Done</option>
+          </select>
+          <button class="icon-btn edit-btn" onclick="startEditPriority('${p.id}')" title="Edit">✎</button>
+          <button class="icon-btn" onclick="deletePriority('${p.id}')" title="Delete">✕</button>
+        </div>
       </div>
-      <div class="priority-actions">
-        <select class="status-select status-${p.status}" onchange="setPriorityStatus('${p.id}', this.value)">
-          <option value="todo" ${p.status === 'todo' ? 'selected' : ''}>Not started</option>
-          <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In progress</option>
-          <option value="done" ${p.status === 'done' ? 'selected' : ''}>Done</option>
-        </select>
-        <button class="icon-btn" onclick="deletePriority('${p.id}')" title="Delete">✕</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+  if (editingPriorityId) {
+    const el = document.getElementById('edit-priority-input-' + editingPriorityId);
+    const p = priorities.find(x => x.id === editingPriorityId);
+    if (el && p) { el.value = p.title; el.focus(); }
+  }
 }
 
 /* ---- Todos ---- */
@@ -853,6 +960,25 @@ function deleteTodo(id) {
   }
 }
 
+let editingTodoId = null;
+function startEditTodo(id) { editingTodoId = id; renderTodos(); }
+function cancelEditTodo() { editingTodoId = null; renderTodos(); }
+
+function saveEditTodo(id) {
+  const input = document.getElementById('edit-todo-input-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+  if (usingFirestore) {
+    db.collection('todos').doc(id).update({ text });
+  } else {
+    const t = todos.find(x => x.id === id);
+    if (t) { t.text = text; persistLocal(); }
+  }
+  editingTodoId = null;
+  renderTodos();
+  renderStats();
+}
+
 function setTodoFilter(filter, btn) {
   todoFilter = filter;
   document.querySelectorAll('#todo-filters .filter-btn').forEach(b => b.classList.remove('active'));
@@ -876,14 +1002,32 @@ function renderTodos() {
   if (items.length === 0) {
     list.innerHTML = '<div class="empty-state">No to-dos match this filter.</div>';
   } else {
-    list.innerHTML = items.map(t => `
-      <div class="todo-item ${t.done ? 'done' : ''}">
-        <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
-        <div class="todo-text">${escapeHtml(t.text)}</div>
-        ${ownerBadge(t.owner)}
-        <button class="icon-btn" onclick="deleteTodo('${t.id}')" title="Delete">✕</button>
-      </div>
-    `).join('');
+    list.innerHTML = items.map(t => {
+      if (t.id === editingTodoId) {
+        return `
+          <div class="todo-item">
+            <input type="text" class="edit-input" id="edit-todo-input-${t.id}"
+              onkeydown="if(event.key==='Enter') saveEditTodo('${t.id}'); if(event.key==='Escape') cancelEditTodo();">
+            <button class="icon-btn save-btn" onclick="saveEditTodo('${t.id}')" title="Save">✓</button>
+            <button class="icon-btn" onclick="cancelEditTodo()" title="Cancel">✕</button>
+          </div>
+        `;
+      }
+      return `
+        <div class="todo-item ${t.done ? 'done' : ''}">
+          <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
+          <div class="todo-text">${escapeHtml(t.text)}</div>
+          ${ownerBadge(t.owner)}
+          <button class="icon-btn edit-btn" onclick="startEditTodo('${t.id}')" title="Edit">✎</button>
+          <button class="icon-btn" onclick="deleteTodo('${t.id}')" title="Delete">✕</button>
+        </div>
+      `;
+    }).join('');
+    if (editingTodoId) {
+      const el = document.getElementById('edit-todo-input-' + editingTodoId);
+      const t = todos.find(x => x.id === editingTodoId);
+      if (el && t) { el.value = t.text; el.focus(); }
+    }
   }
   const total = todos.length;
   const done = todos.filter(t => t.done).length;
@@ -920,19 +1064,14 @@ function topActive(list, n) {
 }
 
 function miniCard(item) {
-  return `
-    <div class="mini-card">
-      <div class="mini-title">${escapeHtml(item.title)}</div>
-      <div class="mini-meta">${ownerBadge(item.owner)}</div>
-    </div>
-  `;
+  return `<div class="mini-card"><div class="mini-title">${escapeHtml(item.title)}</div></div>`;
 }
 
 function renderOverviewSnapshots() {
   const goalsEl = document.getElementById('overview-goals');
   if (goalsEl) {
-    const top = topActive(goals, 3);
-    goalsEl.innerHTML = top.length ? top.map(miniCard).join('') : '<div class="empty-state small">No active goals.</div>';
+    const starred = goals.filter(g => g.starred).sort((a, b) => a.createdAt - b.createdAt);
+    goalsEl.innerHTML = starred.length ? starred.map(miniCard).join('') : '<div class="empty-state small">Star up to 3 goals in the Goals tab to feature them here.</div>';
   }
 
   const prioritiesEl = document.getElementById('overview-priorities');
