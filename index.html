@@ -618,10 +618,6 @@ function showApp() {
   initStore();
 }
 
-if (localStorage.getItem('ft_unlocked') === '1') {
-  showApp();
-}
-
 /* ---------- THEME ---------- */
 function toggleTheme() {
   const root = document.documentElement;
@@ -1146,6 +1142,14 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+/* Auto-unlock on refresh — must run after all `let`/`const` declarations above
+   (initStore reads `db`, `goals`, `priorities`, `todos`, declared later in this
+   script; calling it too early throws a temporal-dead-zone ReferenceError and
+   silently falls back to local-only mode). */
+if (localStorage.getItem('ft_unlocked') === '1') {
+  showApp();
 }
 </script>
 </body>
