@@ -283,6 +283,7 @@
   }
   .owner-niko { background: rgba(124,106,255,0.12); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
   .owner-thierry { background: rgba(255,106,138,0.12); color: var(--accent2); border: 1px solid rgba(255,106,138,0.3); }
+  .owner-unassigned { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
 
   .icon-btn {
     background: none;
@@ -328,6 +329,53 @@
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 4px; transition: width 0.3s; }
 
   .empty-state { color: var(--muted); font-size: 0.88rem; padding: 1.5rem 0; text-align: center; }
+  .empty-state.small { padding: 0.75rem 0; font-size: 0.8rem; }
+
+  /* SNAPSHOT GRID (Overview) */
+  .snapshot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+  .snapshot-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; }
+  .snapshot-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .snapshot-header h3 { font-size: 0.95rem; font-weight: 700; }
+  .view-all-link {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.2rem 0;
+  }
+  .view-all-link:hover { text-decoration: underline; }
+
+  .mini-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .mini-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+  .mini-card .mini-title { font-size: 0.85rem; font-weight: 600; word-break: break-word; }
+  .mini-card .mini-meta { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+  .owner-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .owner-col-header { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .mini-todo-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-todo-row:last-child { border-bottom: none; }
+  .mini-todo-row .todo-text { font-size: 0.82rem; }
+
+  @media (max-width: 700px) {
+    .owner-columns { grid-template-columns: 1fr; }
+  }
 
   /* AFFILIATE TAB (iframe) */
   .iframe-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; height: calc(100vh - 200px); min-height: 500px; }
@@ -361,6 +409,8 @@
     <div class="nav-logo">🎯 Focus Tribe</div>
     <div class="nav-tabs">
       <button class="nav-tab active" data-view="overview" onclick="switchView('overview', this)">Overview</button>
+      <button class="nav-tab" data-view="goals" onclick="switchView('goals', this)">Goals</button>
+      <button class="nav-tab" data-view="priorities" onclick="switchView('priorities', this)">Priorities</button>
       <button class="nav-tab" data-view="todos" onclick="switchView('todos', this)">To-Dos</button>
       <button class="nav-tab" data-view="affiliate" onclick="switchView('affiliate', this)">Affiliate Strategy</button>
     </div>
@@ -381,10 +431,62 @@
 
       <div class="stats-row" id="overview-stats"></div>
 
-      <div class="block">
-        <div class="block-header">
-          <h2>Current Priorities</h2>
+      <div class="snapshot-grid">
+        <div class="snapshot-block">
+          <div class="snapshot-header">
+            <h3>🎯 Top 3 Goals</h3>
+            <button class="view-all-link" onclick="goToTab('goals')">View all →</button>
+          </div>
+          <div class="mini-list" id="overview-goals"></div>
         </div>
+
+        <div class="snapshot-block">
+          <div class="snapshot-header">
+            <h3>⚡ Top 3 Priorities</h3>
+            <button class="view-all-link" onclick="goToTab('priorities')">View all →</button>
+          </div>
+          <div class="mini-list" id="overview-priorities"></div>
+        </div>
+
+        <div class="snapshot-block">
+          <div class="snapshot-header">
+            <h3>✅ Top To-Dos</h3>
+            <button class="view-all-link" onclick="goToTab('todos')">View all →</button>
+          </div>
+          <div class="owner-columns" id="overview-todos"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div class="view" id="view-goals">
+      <div class="page-header">
+        <h1>Goals</h1>
+        <p>The bigger targets everything else ladders up to.</p>
+      </div>
+
+      <div class="block">
+        <div class="add-form">
+          <input type="text" id="goal-input" placeholder="New goal (e.g. Hit 500 paying members)">
+          <select id="goal-owner">
+            <option value="niko">💜 Niko</option>
+            <option value="thierry">🩷 Thierry</option>
+            <option value="both">👥 Both</option>
+          </select>
+          <button class="btn" onclick="addGoal()">Add</button>
+        </div>
+        <div class="priority-list" id="goal-list"></div>
+      </div>
+    </div>
+
+    <!-- PRIORITIES -->
+    <div class="view" id="view-priorities">
+      <div class="page-header">
+        <h1>Priorities</h1>
+        <p>What's most important to move forward right now.</p>
+      </div>
+
+      <div class="block">
         <div class="add-form">
           <input type="text" id="priority-input" placeholder="New priority (e.g. Land 5 tier-1 influencer replies)">
           <select id="priority-owner">
@@ -411,6 +513,7 @@
           <select id="todo-owner">
             <option value="niko">💜 Niko</option>
             <option value="thierry">🩷 Thierry</option>
+            <option value="unassigned">⚪ Unassigned</option>
           </select>
           <button class="btn" onclick="addTodo()">Add</button>
         </div>
@@ -421,6 +524,7 @@
           <button class="filter-btn" data-filter="done" onclick="setTodoFilter('done', this)">Done</button>
           <button class="filter-btn" data-filter="niko" onclick="setTodoFilter('niko', this)">💜 Niko</button>
           <button class="filter-btn" data-filter="thierry" onclick="setTodoFilter('thierry', this)">🩷 Thierry</button>
+          <button class="filter-btn" data-filter="unassigned" onclick="setTodoFilter('unassigned', this)">⚪ Unassigned</button>
         </div>
 
         <div class="progress-bar"><div class="progress-fill" id="todo-progress" style="width:0%"></div></div>
@@ -513,9 +617,14 @@ function switchView(name, btn) {
   btn.classList.add('active');
 }
 
+function goToTab(name) {
+  switchView(name, document.querySelector(`.nav-tab[data-view="${name}"]`));
+}
+
 /* ---------- DATA STORE (Firestore if configured, else localStorage) ---------- */
 let db = null;
 let usingFirestore = false;
+let goals = [];
 let priorities = [];
 let todos = [];
 let todoFilter = 'all';
@@ -529,6 +638,11 @@ function initStore() {
       usingFirestore = true;
       document.getElementById('sync-badge').textContent = '● Live sync';
       document.getElementById('sync-badge').className = 'sync-badge sync-live';
+      db.collection('goals').orderBy('createdAt', 'asc').onSnapshot(snap => {
+        goals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderGoals();
+        renderStats();
+      });
       db.collection('priorities').orderBy('createdAt', 'asc').onSnapshot(snap => {
         priorities = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderPriorities();
@@ -545,20 +659,88 @@ function initStore() {
     }
   }
   // Local-only fallback
+  goals = JSON.parse(localStorage.getItem('ft_goals') || '[]');
   priorities = JSON.parse(localStorage.getItem('ft_priorities') || '[]');
   todos = JSON.parse(localStorage.getItem('ft_todos') || '[]');
+  renderGoals();
   renderPriorities();
   renderTodos();
   renderStats();
 }
 
 function persistLocal() {
+  localStorage.setItem('ft_goals', JSON.stringify(goals));
   localStorage.setItem('ft_priorities', JSON.stringify(priorities));
   localStorage.setItem('ft_todos', JSON.stringify(todos));
 }
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+/* ---- Goals ---- */
+function addGoal() {
+  const input = document.getElementById('goal-input');
+  const title = input.value.trim();
+  if (!title) return;
+  const owner = document.getElementById('goal-owner').value;
+  const item = { title, owner, status: 'todo', createdAt: Date.now() };
+  if (usingFirestore) {
+    db.collection('goals').add(item);
+  } else {
+    goals.push({ id: uid(), ...item });
+    persistLocal();
+    renderGoals();
+    renderStats();
+  }
+  input.value = '';
+}
+
+function setGoalStatus(id, status) {
+  if (usingFirestore) {
+    db.collection('goals').doc(id).update({ status });
+  } else {
+    const g = goals.find(x => x.id === id);
+    if (g) { g.status = status; persistLocal(); renderGoals(); renderStats(); }
+  }
+}
+
+function deleteGoal(id) {
+  if (usingFirestore) {
+    db.collection('goals').doc(id).delete();
+  } else {
+    goals = goals.filter(x => x.id !== id);
+    persistLocal();
+    renderGoals();
+    renderStats();
+  }
+}
+
+function renderGoals() {
+  const list = document.getElementById('goal-list');
+  if (!list) return;
+  if (goals.length === 0) {
+    list.innerHTML = '<div class="empty-state">No goals yet. Add the big targets you\'re working toward.</div>';
+    return;
+  }
+  const order = { todo: 0, in_progress: 1, done: 2 };
+  const sorted = [...goals].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+  list.innerHTML = sorted.map(g => `
+    <div class="priority-card">
+      <div class="priority-main">
+        <div class="priority-title">${escapeHtml(g.title)}</div>
+        <div class="priority-meta">${ownerBadge(g.owner)}</div>
+      </div>
+      <div class="priority-actions">
+        <select class="status-select status-${g.status}" onchange="setGoalStatus('${g.id}', this.value)">
+          <option value="todo" ${g.status === 'todo' ? 'selected' : ''}>Not started</option>
+          <option value="in_progress" ${g.status === 'in_progress' ? 'selected' : ''}>In progress</option>
+          <option value="done" ${g.status === 'done' ? 'selected' : ''}>Done</option>
+        </select>
+        <button class="icon-btn" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+      </div>
+    </div>
+  `).join('');
 }
 
 /* ---- Priorities ---- */
@@ -602,6 +784,7 @@ function deletePriority(id) {
 function ownerBadge(owner) {
   if (owner === 'niko') return '<span class="owner-badge owner-niko">💜 Niko</span>';
   if (owner === 'thierry') return '<span class="owner-badge owner-thierry">🩷 Thierry</span>';
+  if (owner === 'unassigned') return '<span class="owner-badge owner-unassigned">⚪ Unassigned</span>';
   return '<span class="owner-badge" style="background:var(--surface);color:var(--muted);border:1px solid var(--border)">👥 Both</span>';
 }
 
@@ -712,17 +895,68 @@ function renderTodos() {
 /* ---- Stats ---- */
 function renderStats() {
   const el = document.getElementById('overview-stats');
-  if (!el) return;
-  const openTodos = todos.filter(t => !t.done).length;
-  const doneTodos = todos.filter(t => t.done).length;
-  const activePriorities = priorities.filter(p => p.status !== 'done').length;
-  const donePriorities = priorities.filter(p => p.status === 'done').length;
-  el.innerHTML = `
-    <div class="stat-card"><div class="val">${activePriorities}</div><div class="lbl">Active priorities</div></div>
-    <div class="stat-card"><div class="val">${donePriorities}</div><div class="lbl">Priorities done</div></div>
-    <div class="stat-card"><div class="val">${openTodos}</div><div class="lbl">Open to-dos</div></div>
-    <div class="stat-card"><div class="val">${doneTodos}</div><div class="lbl">To-dos done</div></div>
+  if (el) {
+    const openTodos = todos.filter(t => !t.done).length;
+    const doneTodos = todos.filter(t => t.done).length;
+    const activePriorities = priorities.filter(p => p.status !== 'done').length;
+    const donePriorities = priorities.filter(p => p.status === 'done').length;
+    const activeGoals = goals.filter(g => g.status !== 'done').length;
+    const doneGoals = goals.filter(g => g.status === 'done').length;
+    el.innerHTML = `
+      <div class="stat-card"><div class="val">${activeGoals}</div><div class="lbl">Active goals</div></div>
+      <div class="stat-card"><div class="val">${doneGoals}</div><div class="lbl">Goals done</div></div>
+      <div class="stat-card"><div class="val">${activePriorities}</div><div class="lbl">Active priorities</div></div>
+      <div class="stat-card"><div class="val">${donePriorities}</div><div class="lbl">Priorities done</div></div>
+      <div class="stat-card"><div class="val">${openTodos}</div><div class="lbl">Open to-dos</div></div>
+      <div class="stat-card"><div class="val">${doneTodos}</div><div class="lbl">To-dos done</div></div>
+    `;
+  }
+  renderOverviewSnapshots();
+}
+
+/* ---- Overview snapshots ---- */
+function topActive(list, n) {
+  return [...list].filter(i => i.status !== 'done').sort((a, b) => a.createdAt - b.createdAt).slice(0, n);
+}
+
+function miniCard(item) {
+  return `
+    <div class="mini-card">
+      <div class="mini-title">${escapeHtml(item.title)}</div>
+      <div class="mini-meta">${ownerBadge(item.owner)}</div>
+    </div>
   `;
+}
+
+function renderOverviewSnapshots() {
+  const goalsEl = document.getElementById('overview-goals');
+  if (goalsEl) {
+    const top = topActive(goals, 3);
+    goalsEl.innerHTML = top.length ? top.map(miniCard).join('') : '<div class="empty-state small">No active goals.</div>';
+  }
+
+  const prioritiesEl = document.getElementById('overview-priorities');
+  if (prioritiesEl) {
+    const top = topActive(priorities, 3);
+    prioritiesEl.innerHTML = top.length ? top.map(miniCard).join('') : '<div class="empty-state small">No active priorities.</div>';
+  }
+
+  const todosEl = document.getElementById('overview-todos');
+  if (todosEl) {
+    const owners = [['niko', '💜 Niko'], ['thierry', '🩷 Thierry'], ['unassigned', '⚪ Unassigned']];
+    todosEl.innerHTML = owners.map(([key, label]) => {
+      const items = todos.filter(t => !t.done && t.owner === key).sort((a, b) => a.createdAt - b.createdAt).slice(0, 3);
+      const rows = items.length
+        ? items.map(t => `
+            <div class="mini-todo-row">
+              <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
+              <div class="todo-text">${escapeHtml(t.text)}</div>
+            </div>
+          `).join('')
+        : '<div class="empty-state small">All clear</div>';
+      return `<div><div class="owner-col-header">${label}</div>${rows}</div>`;
+    }).join('');
+  }
 }
 
 function escapeHtml(str) {
