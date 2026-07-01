@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Focus Tribe — Affiliate Influencer Strategy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222d;
+    --border: #2e2e3d;
+    --accent: #7c6aff;
+    --accent2: #ff6a8a;
+    --accent3: #6affb8;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --tier1: #6affb8;
+    --tier2: #ffc96a;
+    --tier3: #ff6a8a;
+    --yt: #ff4444;
+    --ig: #e1306c;
+    --tt: #69c9d0;
+    --nav-bg: rgba(15,15,19,0.92);
+  }
+
+  :root.light {
+    --bg: #f5f5f8;
+    --surface: #ffffff;
+    --surface2: #eeeef5;
+    --border: #d8d8e8;
+    --accent: #5b47f5;
+    --accent2: #e0365a;
+    --accent3: #18a869;
+    --text: #1a1a2e;
+    --muted: #6666888;
+    --tier1: #18a869;
+    --tier2: #d4850a;
+    --tier3: #e0365a;
+    --yt: #cc2222;
+    --ig: #c2185b;
+    --tt: #0097a7;
+    --nav-bg: rgba(245,245,248,0.92);
+    --muted: #606080;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 56px;
+  }
+  .nav-logo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface2); }
+  .theme-toggle {
+    margin-left: auto;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 2rem 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(124,106,255,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 640px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    min-width: 130px;
+  }
+  .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* SECTIONS */
+  .section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .section-num {
+    width: 32px; height: 32px;
+    background: rgba(124,106,255,0.2);
+    border: 1px solid rgba(124,106,255,0.4);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.85rem; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  /* AVATAR CARD */
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .avatar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+  }
+  .avatar-card h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+  .avatar-card ul { list-style: none; }
+  .avatar-card ul li {
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .avatar-card ul li:last-child { border-bottom: none; }
+  .avatar-card ul li::before { content: "→"; color: var(--accent); flex-shrink: 0; }
+
+  .pain-box {
+    background: rgba(255,106,138,0.07);
+    border: 1px solid rgba(255,106,138,0.25);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .pain-box h3 { color: var(--accent2); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+  .pain-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pain-tag {
+    background: rgba(255,106,138,0.12);
+    border: 1px solid rgba(255,106,138,0.3);
+    color: var(--accent2);
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* CRITERIA */
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .criteria-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+  }
+  .criteria-card h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+  .criteria-card .highlight { color: var(--accent3); font-weight: 700; font-size: 1rem; }
+  .criteria-card p, .criteria-card li { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.3rem; }
+  .criteria-card ul { list-style: none; }
+  .criteria-card ul li::before { content: "✓ "; color: var(--accent3); }
+  .criteria-card ul.no li::before { content: "✗ "; color: var(--accent2); }
+  .range-bar {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin: 0.75rem 0 0.4rem;
+    overflow: hidden;
+  }
+  .range-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+  .range-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+
+  .commission-box {
+    background: linear-gradient(135deg, rgba(124,106,255,0.1), rgba(106,255,184,0.08));
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .commission-math { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .math-item { text-align: center; }
+  .math-value { font-size: 1.4rem; font-weight: 800; color: var(--accent3); }
+  .math-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .math-arrow { font-size: 1.4rem; color: var(--border); align-self: center; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .tab:hover { background: var(--surface2); color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+  /* INFLUENCER CARDS */
+  .influencer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .influencer-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .influencer-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .influencer-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .influencer-card.tier-1::before { background: var(--tier1); }
+  .influencer-card.tier-2::before { background: var(--tier2); }
+  .influencer-card.tier-3::before { background: var(--tier3); }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .card-name { font-weight: 700; font-size: 1rem; }
+  .card-handle { color: var(--muted); font-size: 0.8rem; margin-top: 0.1rem; }
+  .tier-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tier-1-badge { background: rgba(106,255,184,0.12); color: var(--tier1); border: 1px solid rgba(106,255,184,0.3); }
+  .tier-2-badge { background: rgba(255,201,106,0.12); color: var(--tier2); border: 1px solid rgba(255,201,106,0.3); }
+  .tier-3-badge { background: rgba(255,106,138,0.12); color: var(--tier3); border: 1px solid rgba(255,106,138,0.3); }
+
+  .card-stats { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .card-stat {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .card-stat strong { color: var(--text); }
+
+  .platform-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+  }
+  .platform-yt { background: rgba(255,68,68,0.15); color: var(--yt); }
+  .platform-ig { background: rgba(225,48,108,0.15); color: var(--ig); }
+  .platform-tt { background: rgba(105,201,208,0.15); color: var(--tt); }
+
+  .card-niche { color: var(--muted); font-size: 0.83rem; margin-bottom: 0.75rem; line-height: 1.5; }
+
+  .card-contact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  .card-contact.has-email { border-color: rgba(106,255,184,0.3); color: var(--accent3); background: rgba(106,255,184,0.06); }
+  .card-contact .icon { flex-shrink: 0; }
+
+  .card-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(124,106,255,0.07);
+    border: 1px solid rgba(124,106,255,0.25);
+    border-radius: 8px;
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: background 0.15s;
+  }
+  .card-link:hover { background: rgba(124,106,255,0.15); }
+
+  .owner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    margin-top: 0.5rem;
+  }
+  .owner-niko { background: rgba(124,106,255,0.12); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
+  .owner-thierry { background: rgba(255,106,138,0.12); color: var(--accent2); border: 1px solid rgba(255,106,138,0.3); }
+
+  /* PRIORITY TIERS SECTION */
+  .tier-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .tier-card {
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid;
+  }
+  .tier-card.t1 { background: rgba(106,255,184,0.05); border-color: rgba(106,255,184,0.25); }
+  .tier-card.t2 { background: rgba(255,201,106,0.05); border-color: rgba(255,201,106,0.25); }
+  .tier-card.t3 { background: rgba(255,106,138,0.05); border-color: rgba(255,106,138,0.25); }
+  .tier-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .tier-card.t1 h3 { color: var(--tier1); }
+  .tier-card.t2 h3 { color: var(--tier2); }
+  .tier-card.t3 h3 { color: var(--tier3); }
+  .tier-card p { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
+  .tier-names { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tier-name-chip {
+    font-size: 0.78rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .t1 .tier-name-chip { background: rgba(106,255,184,0.1); color: var(--tier1); }
+  .t2 .tier-name-chip { background: rgba(255,201,106,0.1); color: var(--tier2); }
+  .t3 .tier-name-chip { background: rgba(255,106,138,0.1); color: var(--tier3); }
+
+  /* OUTREACH TEMPLATE */
+  .template-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .template-header {
+    background: var(--surface2);
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .template-header span { font-weight: 600; color: var(--text); }
+  .copy-btn {
+    background: rgba(124,106,255,0.15);
+    border: 1px solid rgba(124,106,255,0.3);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: rgba(124,106,255,0.3); }
+  .template-body {
+    padding: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+  .template-body .placeholder {
+    color: var(--accent);
+    background: rgba(124,106,255,0.1);
+    border-radius: 4px;
+    padding: 0 3px;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .section { padding: 3rem 1rem; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .commission-math { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🎯 Focus Tribe</div>
+  <div class="nav-links">
+    <a href="#avatar">Avatar</a>
+    <a href="#criteria">Criteria</a>
+    <a href="#influencers">Influencers</a>
+    <a href="#priority">Priority</a>
+    <a href="#outreach">Outreach</a>
+  </div>
+  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Affiliate Influencer Strategy</div>
+  <h1>Find your tribe.<br>Grow your tribe.</h1>
+  <p>A complete affiliate marketing playbook for The Focus Tribe — who to target, what to look for, and exactly who to reach out to first.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-value">$27</div>
+      <div class="stat-label">Per month</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">40%</div>
+      <div class="stat-label">Commission</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">$10.80</div>
+      <div class="stat-label">Per member/mo</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">25</div>
+      <div class="stat-label">Influencers shortlisted</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1: AVATAR -->
+<div class="section" id="avatar">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2>Target Audience & Client Avatar</h2>
+  </div>
+
+  <div class="avatar-grid">
+    <div class="avatar-card">
+      <h3>Primary Avatar — "The Ambitious Drifter"</h3>
+      <ul>
+        <li>Age 23–38, remote worker or solopreneur</li>
+        <li>Has goals (business, fitness, creative project, skill)</li>
+        <li>Keeps starting and stopping — knows what to do, can't stay consistent</li>
+        <li>Already consumes self-improvement content</li>
+        <li>Responds to social commitment and real consequences</li>
+        <li>Values structure over motivation</li>
+      </ul>
+    </div>
+    <div class="avatar-card">
+      <h3>Secondary Avatar — "The Solopreneur"</h3>
+      <ul>
+        <li>Freelancer, creator, or online business owner</li>
+        <li>No boss or team = no external accountability</li>
+        <li>Has a specific income or business goal</li>
+        <li>Willing to invest in accountability tools</li>
+        <li>Needs structure because self-discipline alone isn't enough</li>
+        <li>Values community of like-minded doers</li>
+      </ul>
+    </div>
+    <div class="avatar-card">
+      <h3>Why They Buy</h3>
+      <ul>
+        <li>$27/month is an easy yes if they feel genuine accountability</li>
+        <li>7-day free trial removes all risk</li>
+        <li>They've spent more on courses they never finished</li>
+        <li>The community = the product (not information)</li>
+        <li>Public commitment creates real social pressure</li>
+        <li>Real consequences make it stick</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pain-box">
+    <h3>Core Pain Points to Speak To</h3>
+    <div class="pain-tags">
+      <span class="pain-tag">Procrastination</span>
+      <span class="pain-tag">Starting strong, losing momentum</span>
+      <span class="pain-tag">Distraction & doom scrolling</span>
+      <span class="pain-tag">Feeling isolated in goals</span>
+      <span class="pain-tag">No accountability partner</span>
+      <span class="pain-tag">Knowing what to do but not doing it</span>
+      <span class="pain-tag">Inconsistent habits</span>
+      <span class="pain-tag">Too many goals, no follow-through</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: CRITERIA -->
+<div class="section" id="criteria">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2>Ideal Influencer Criteria</h2>
+  </div>
+
+  <div class="commission-box">
+    <div>
+      <div style="font-weight:700; font-size:1rem; margin-bottom:0.25rem;">The Affiliate Math</div>
+      <div style="color:var(--muted); font-size:0.85rem;">Recurring passive income — not a one-time flat fee</div>
+    </div>
+    <div class="commission-math">
+      <div class="math-item">
+        <div class="math-value">10 members</div>
+        <div class="math-label">converts</div>
+      </div>
+      <div class="math-arrow">→</div>
+      <div class="math-item">
+        <div class="math-value" style="color:var(--tier2)">$108/mo</div>
+        <div class="math-label">recurring</div>
+      </div>
+      <div class="math-arrow">→</div>
+      <div class="math-item">
+        <div class="math-value" style="color:var(--tier1)">$1,296/yr</div>
+        <div class="math-label">per year</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="criteria-grid">
+    <div class="criteria-card">
+      <h3>Follower Count (Sweet Spot)</h3>
+      <p style="margin-bottom:0.75rem;">Instagram / TikTok</p>
+      <div class="range-bar"><div class="range-fill" style="width:55%"></div></div>
+      <div class="range-labels"><span>10K</span><span class="highlight">15K – 300K</span><span>1M+</span></div>
+      <p style="margin-top:0.75rem;">YouTube</p>
+      <div class="range-bar"><div class="range-fill" style="width:50%"></div></div>
+      <div class="range-labels"><span>10K</span><span class="highlight">20K – 500K</span><span>1M+</span></div>
+      <p style="margin-top:0.75rem; font-size:0.8rem;">Smaller creators often have higher engagement and better conversion. Avoid mega-influencers (1M+) — they rarely do affiliate-only deals.</p>
+    </div>
+
+    <div class="criteria-card">
+      <h3>Niche (must match 2–3)</h3>
+      <ul>
+        <li>Productivity & habit building</li>
+        <li>Personal development / self-improvement</li>
+        <li>Goal setting, accountability, journaling</li>
+        <li>Morning routines / daily rituals</li>
+        <li>Mindfulness, intentional living</li>
+        <li>Solopreneurship / freelance life</li>
+        <li>Study with me / coworking / deep work</li>
+      </ul>
+    </div>
+
+    <div class="criteria-card">
+      <h3>Engagement Rate (Minimum)</h3>
+      <p style="margin-bottom:0.5rem;"><span class="highlight">3%+</span> on Instagram / TikTok</p>
+      <p style="margin-bottom:0.5rem;"><span class="highlight">5%+</span> like-to-view on YouTube</p>
+      <p>Active comment sections matter more than raw follower count. Look for real conversations, not just emojis.</p>
+    </div>
+
+    <div class="criteria-card">
+      <h3>Content Style ✓</h3>
+      <ul>
+        <li>Authentic, personal, "real life"</li>
+        <li>"With me" formats (study/work/habit vlogs)</li>
+        <li>Educational or challenge-based</li>
+        <li>Already promotes tools or communities</li>
+        <li>English-speaking audience (primarily)</li>
+      </ul>
+    </div>
+
+    <div class="criteria-card">
+      <h3>Disqualifiers ✗</h3>
+      <ul class="no">
+        <li>Audience primarily teenagers</li>
+        <li>Pure motivational quotes, no real engagement</li>
+        <li>Fake follower % above 30%</li>
+        <li>Non-English content</li>
+        <li>Pure entertainment / gaming / fashion</li>
+        <li>Content feels inauthentic or transactional</li>
+      </ul>
+    </div>
+
+    <div class="criteria-card">
+      <h3>Outreach Tips</h3>
+      <ul>
+        <li>Reference a specific video or post</li>
+        <li>Offer a free membership first</li>
+        <li>Lead with recurring income angle</li>
+        <li>Keep it personal, not templated</li>
+        <li>Follow up once if no reply after 7 days</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: INFLUENCERS -->
+<div class="section" id="influencers">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2>Influencer Shortlist — 25 Best Options</h2>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.5rem;">
+    <div class="tabs" id="platform-tabs">
+      <button class="tab active" onclick="setFilter('platform','all',this)">All (25)</button>
+      <button class="tab" onclick="setFilter('platform','yt',this)"><span class="platform-dot" style="background:var(--yt)"></span> YouTube (10)</button>
+      <button class="tab" onclick="setFilter('platform','ig',this)"><span class="platform-dot" style="background:var(--ig)"></span> Instagram (8)</button>
+      <button class="tab" onclick="setFilter('platform','tt',this)"><span class="platform-dot" style="background:var(--tt)"></span> TikTok (7)</button>
+      <button class="tab" onclick="setFilter('platform','email',this)">📧 Has Email (8)</button>
+    </div>
+    <div class="tabs" id="owner-tabs">
+      <button class="tab active" onclick="setFilter('owner','all',this)">👥 Both</button>
+      <button class="tab" onclick="setFilter('owner','niko',this)" style="border-color:rgba(124,106,255,0.4); color:var(--accent)">💜 Niko's List</button>
+      <button class="tab" onclick="setFilter('owner','thierry',this)" style="border-color:rgba(255,106,138,0.4); color:var(--accent2)">🩷 Thierry's List</button>
+    </div>
+  </div>
+
+  <div class="influencer-grid" id="grid-main"></div>
+</div>
+
+<!-- SECTION 4: PRIORITY TIERS -->
+<div class="section" id="priority">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2>Priority Tiers — Where to Start</h2>
+  </div>
+
+  <div class="tier-cards">
+    <div class="tier-card t1">
+      <h3>🟢 Tier 1 — Start Here</h3>
+      <p>Have public contact emails, direct niche overlap, mid-sized engaged audiences. Best probability of getting a "yes" quickly.</p>
+      <div class="tier-names">
+        <span class="tier-name-chip">Ellie @ellharve</span>
+        <span class="tier-name-chip">Kira Jones</span>
+        <span class="tier-name-chip">Cameron</span>
+        <span class="tier-name-chip">Rose @_rosetanaka</span>
+        <span class="tier-name-chip">Charlene</span>
+        <span class="tier-name-chip">Lia @hiimlialol</span>
+        <span class="tier-name-chip">Lindsay</span>
+      </div>
+    </div>
+    <div class="tier-card t2">
+      <h3>🟡 Tier 2 — High Potential</h3>
+      <p>Strong niche alignment, authentic style, likely open to affiliate arrangements. Reach via website contact or platform DM.</p>
+      <div class="tier-names">
+        <span class="tier-name-chip">Muchelleb</span>
+        <span class="tier-name-chip">Kalyn Nicholson</span>
+        <span class="tier-name-chip">Mike & Matty</span>
+        <span class="tier-name-chip">Productivity Coach</span>
+        <span class="tier-name-chip">Notion With Ro</span>
+        <span class="tier-name-chip">Maja @hey.its.maja</span>
+        <span class="tier-name-chip">Jillian Guerin</span>
+        <span class="tier-name-chip">Katie Steckly</span>
+      </div>
+    </div>
+    <div class="tier-card t3">
+      <h3>🔴 Tier 3 — High Upside, Lower Probability</h3>
+      <p>Larger creators (500K–1.5M). Even 0.1% conversion = significant recurring income. Worth a shot with a personalized pitch.</p>
+      <div class="tier-names">
+        <span class="tier-name-chip">Nathaniel Drew</span>
+        <span class="tier-name-chip">Elizabeth Filips</span>
+        <span class="tier-name-chip">Struthless</span>
+        <span class="tier-name-chip">Dan Koe</span>
+        <span class="tier-name-chip">Koi Fresco</span>
+        <span class="tier-name-chip">Adete Dahiya</span>
+        <span class="tier-name-chip">UnJaded Jade</span>
+        <span class="tier-name-chip">Pierre Dalati</span>
+        <span class="tier-name-chip">Chase Chappell</span>
+        <span class="tier-name-chip">Thomas Frank</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: OUTREACH TEMPLATE -->
+<div class="section" id="outreach">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2>Outreach Template</h2>
+  </div>
+
+  <p style="color:var(--muted); margin-bottom:1.5rem; font-size:0.9rem;">Customize the highlighted fields for each creator. Reference something specific from their content — it's the difference between a reply and silence.</p>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span>Email / DM Template</span>
+      <button class="copy-btn" onclick="copyTemplate()">Copy Template</button>
+    </div>
+    <div class="template-body" id="template-text"><span style="color:var(--muted)"><strong>Subject:</strong> Recurring partnership idea — The Focus Tribe</span>
+
+Hey <span class="placeholder">[Name]</span>,
+
+I've been following your content for a while — <span class="placeholder">[specific video/post reference]</span> really resonated with me.
+
+I run The Focus Tribe, an accountability community on Skool where people commit to 21-day challenges, join weekly group calls, and actually follow through on their goals. It's $27/month with a 7-day free trial.
+
+I'd love to offer you an affiliate partnership: <strong>40% of what every member you refer pays, every month, for as long as they stay.</strong> No upfront cost, no mandatory deliverables — just a genuine recommendation if you think it fits your audience.
+
+I'd also love to offer you a free membership so you can experience it yourself first.
+
+Would you be open to a quick chat?
+
+— Niko & Thierry, The Focus Tribe
+skool.com/thefocustribe</div>
+  </div>
+</div>
+
+<div class="footer">
+  Research compiled July 2026 · Follower counts are approximate · Always verify contact info before reaching out · The Focus Tribe — skool.com/thefocustribe
+</div>
+
+<script>
+const influencers = [
+  // YOUTUBE — Niko contacts 5, Thierry contacts 5
+  { name: "Muchelleb", handle: "@muchelleb", platform: "yt", subs: "~497K", niche: "Habits, intentional living, behavior change — near-perfect niche overlap", contact: "muchelleb.com.au", contactType: "website", tier: 2, url: "https://youtube.com/c/muchelleb", owner: "niko" },
+  { name: "Elizabeth Filips", handle: "@ElizabethFilips", platform: "yt", subs: "~780K", niche: "Study, learning, productivity — high-value ambitious audience", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@ElizabethFilips", owner: "thierry" },
+  { name: "Kalyn Nicholson", handle: "@KalynNicholson", platform: "yt", subs: "~400K", niche: "GYST (Get Your S**t Together) routines, habits — iconic accountability content", contact: "Via YouTube About page", contactType: "platform", tier: 2, url: "https://youtube.com/@KalynNicholson", owner: "niko" },
+  { name: "Koi Fresco", handle: "@KoisCorner", platform: "yt", subs: "~400K", niche: "Mindfulness, self-mastery, spiritual growth — audience actively seeks transformation", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@KoisCorner", owner: "thierry" },
+  { name: "Nathaniel Drew", handle: "@nathanieldrew_", platform: "yt", subs: "~1.2M", niche: "Self-improvement, minimalism, intentional living — aspirational audience", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@nathanieldrewofficial", owner: "niko" },
+  { name: "Struthless", handle: "@struthless", platform: "yt", subs: "~1.4M", niche: "Journaling, self-discovery, creative habits — deep thinkers audience", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@struthless", owner: "thierry" },
+  { name: "Mike and Matty", handle: "@MikeAndMatty", platform: "yt", subs: "~150K", niche: "Productivity systems, AI tools, learning — high-intent ambitious audience", contact: "mikeandmatty.com", contactType: "website", tier: 2, url: "https://youtube.com/@MikeAndMatty", owner: "niko" },
+  { name: "Jillian Guerin", handle: "@JillzGuerin", platform: "yt", subs: "~200K", niche: "Women's self-development, routines, mindset — strong TikTok crossover", contact: "Via YouTube About page", contactType: "platform", tier: 2, url: "https://youtube.com/@JillzGuerin", owner: "thierry" },
+  { name: "UnJaded Jade", handle: "@UnJadedJade", platform: "yt", subs: "~800K", niche: "Self-confidence, mindfulness, academic performance — relatable personal dev", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@UnJadedJade", owner: "thierry" },
+  { name: "Katie Steckly", handle: "@katie", platform: "yt", subs: "~120K", niche: "Content creation + personal development, daily habits, authenticity", contact: "katiesteckly.com", contactType: "website", tier: 2, url: "https://youtube.com/@katie", owner: "niko" },
+  // INSTAGRAM — Niko 4, Thierry 4
+  { name: "Ellie", handle: "@ellharve", platform: "ig", subs: "116.8K", er: "6.7%", niche: "Student life, productivity, science — NYC based, very engaged 6.7% ER", contact: "collabs.ellie@gmail.com", contactType: "email", tier: 1, url: "https://instagram.com/ellharve", owner: "niko" },
+  { name: "Kira Jones", handle: "@kirajones", platform: "ig", subs: "86.6K", niche: "Morning routine, wellness, productivity — founder of @cactiwellness", contact: "hello@cactiwellness.com", contactType: "email", tier: 1, url: "https://instagram.com/kirajones", owner: "thierry" },
+  { name: "Cameron", handle: "@cmrnsmith", platform: "ig", subs: "72.3K", niche: "Self-growth, productivity, career, discipline — strong goal-setting content", contact: "contact@cmrnsmith.com", contactType: "email", tier: 1, url: "https://instagram.com/cmrnsmith", owner: "niko" },
+  { name: "Rose", handle: "@_rosetanaka", platform: "ig", subs: "55.7K", niche: "Cozy productivity, 'work with me' content — active on YT & TikTok too", contact: "rose@thedigitaldept.com", contactType: "email", tier: 1, url: "https://instagram.com/_rosetanaka", owner: "thierry" },
+  { name: "Charlene", handle: "@charlenehao", platform: "ig", subs: "44.8K", er: "3.07%", niche: "Routines, productivity, corporate life, morning routines", contact: "collab.charlene@gmail.com", contactType: "email", tier: 1, url: "https://instagram.com/charlenehao", owner: "niko" },
+  { name: "Lia", handle: "@hiimlialol", platform: "ig", subs: "43.2K", niche: "Uni life, productivity apps, planning — NYC Columbia nursing student", contact: "liasinquiries@gmail.com", contactType: "email", tier: 1, url: "https://instagram.com/hiimlialol", owner: "thierry" },
+  { name: "Lindsay", handle: "@scorpiorisingmedia", platform: "ig", subs: "22.3K", er: "5.87%", niche: "Notion, planning, productivity — Philly-based creative, strong 5.87% ER", contact: "Via Instagram DM", contactType: "platform", tier: 1, url: "https://instagram.com/scorpiorisingmedia", owner: "niko" },
+  { name: "Ashtyn", handle: "@ashtyn_plans", platform: "ig", subs: "22.6K", er: "5.31%", niche: "Bullet journal, productivity planning — dedicated habit tracking audience", contact: "Via Instagram DM", contactType: "platform", tier: 2, url: "https://instagram.com/ashtyn_plans", owner: "thierry" },
+  // TIKTOK — Niko 4, Thierry 3
+  { name: "The Productivity Coach", handle: "@the.productivity.coach", platform: "tt", subs: "~488.5K", niche: "Neuroscience-based productivity & energy management — direct audience fit", contact: "Via TikTok bio / website", contactType: "platform", tier: 2, url: "https://tiktok.com/@the.productivity.coach", owner: "niko" },
+  { name: "Notion With Ro", handle: "@notionwithro", platform: "tt", subs: "~200K", niche: "Notion, productivity systems, habit tracking — highly engaged niche audience", contact: "Via TikTok bio", contactType: "platform", tier: 2, url: "https://tiktok.com/@notionwithro", owner: "thierry" },
+  { name: "Maja Zalewska", handle: "@hey.its.maja", platform: "tt", subs: "~150K", niche: "Accountability partner, habit tracking, wellness journey content", contact: "Via TikTok bio", contactType: "platform", tier: 2, url: "https://tiktok.com/@hey.its.maja", owner: "niko" },
+  { name: "Dan Koe", handle: "@thedankoe", platform: "tt", subs: "1M+", niche: "Focus, deep work, one-person business, self-mastery — premium ambitious audience", contact: "thedankoe.com", contactType: "website", tier: 3, url: "https://thedankoe.com", owner: "niko" },
+  { name: "Pierre Dalati", handle: "@pierredalati", platform: "tt", subs: "~300K", niche: "Fitness + self-improvement, habit challenges, men's self-development", contact: "Via TikTok bio", contactType: "platform", tier: 3, url: "https://tiktok.com/@pierredalati", owner: "thierry" },
+  { name: "Chase Chappell", handle: "@chase_chappell", platform: "tt", subs: "~324K", niche: "Productivity systems, entrepreneurship, scaling — business-minded audience", contact: "Via TikTok bio / website", contactType: "platform", tier: 3, url: "https://tiktok.com/@chase_chappell", owner: "niko" },
+  { name: "Adete Dahiya", handle: "@adetedahiya", platform: "tt", subs: "~450K", niche: "Personal development for women, psychology, communication — broad self-improvement", contact: "Via YouTube About page", contactType: "platform", tier: 3, url: "https://youtube.com/@adetedahiya", owner: "thierry" },
+];
+
+// Filter state
+let activeFilters = { platform: 'all', owner: 'all' };
+
+function setFilter(type, value, btn) {
+  activeFilters[type] = value;
+  // update active button style within the right tab group
+  const groupId = type === 'platform' ? 'platform-tabs' : 'owner-tabs';
+  document.querySelectorAll(`#${groupId} .tab`).forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderMain();
+}
+
+function applyFilters() {
+  return influencers.filter(i => {
+    const pMatch = activeFilters.platform === 'all' ? true
+      : activeFilters.platform === 'email' ? i.contactType === 'email'
+      : i.platform === activeFilters.platform;
+    const oMatch = activeFilters.owner === 'all' ? true : i.owner === activeFilters.owner;
+    return pMatch && oMatch;
+  });
+}
+
+function platformLabel(p) {
+  if (p === 'yt') return '<span class="platform-badge platform-yt">YouTube</span>';
+  if (p === 'ig') return '<span class="platform-badge platform-ig">Instagram</span>';
+  if (p === 'tt') return '<span class="platform-badge platform-tt">TikTok</span>';
+}
+
+function tierBadge(t) {
+  if (t === 1) return '<span class="tier-badge tier-1-badge">Tier 1 — Start Here</span>';
+  if (t === 2) return '<span class="tier-badge tier-2-badge">Tier 2 — High Potential</span>';
+  if (t === 3) return '<span class="tier-badge tier-3-badge">Tier 3 — High Upside</span>';
+}
+
+function contactHtml(inf) {
+  const isEmail = inf.contactType === 'email';
+  const icon = isEmail ? '📧' : inf.contactType === 'website' ? '🌐' : '💬';
+  const cls = isEmail ? 'card-contact has-email' : 'card-contact';
+  return `<div class="${cls}"><span class="icon">${icon}</span><span>${inf.contact}</span></div>`;
+}
+
+function ownerBadge(owner) {
+  if (owner === 'niko') return '<span class="owner-badge owner-niko">💜 Niko</span>';
+  return '<span class="owner-badge owner-thierry">🩷 Thierry</span>';
+}
+
+function buildCard(inf) {
+  return `
+    <div class="influencer-card tier-${inf.tier}">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${inf.name}</div>
+          <div class="card-handle">${inf.handle}</div>
+        </div>
+        ${tierBadge(inf.tier)}
+      </div>
+      <div class="card-stats">
+        ${platformLabel(inf.platform)}
+        <div class="card-stat"><strong>${inf.subs}</strong> followers</div>
+        ${inf.er ? `<div class="card-stat"><strong>${inf.er}</strong> ER</div>` : ''}
+      </div>
+      <div class="card-niche">${inf.niche}</div>
+      ${contactHtml(inf)}
+      <a class="card-link" href="${inf.url}" target="_blank" rel="noopener">↗ View Profile</a>
+      ${ownerBadge(inf.owner)}
+    </div>
+  `;
+}
+
+function renderMain() {
+  const filtered = applyFilters();
+  const grid = document.getElementById('grid-main');
+  if (filtered.length === 0) {
+    grid.innerHTML = '<p style="color:var(--muted);padding:2rem 0;">No influencers match this filter combination.</p>';
+  } else {
+    grid.innerHTML = filtered.map(buildCard).join('');
+  }
+}
+
+renderMain();
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const btn = document.getElementById('themeBtn');
+  const isLight = root.classList.toggle('light');
+  btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+// Restore saved preference
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themeBtn');
+      if (btn) btn.textContent = '🌙 Dark';
+    });
+  }
+})();
+
+function copyTemplate() {
+  const text = `Subject: Recurring partnership idea — The Focus Tribe
+
+Hey [Name],
+
+I've been following your content for a while — [specific video/post reference] really resonated with me.
+
+I run The Focus Tribe, an accountability community on Skool where people commit to 21-day challenges, join weekly group calls, and actually follow through on their goals. It's $27/month with a 7-day free trial.
+
+I'd love to offer you an affiliate partnership: 40% of what every member you refer pays, every month, for as long as they stay. No upfront cost, no mandatory deliverables — just a genuine recommendation if you think it fits your audience.
+
+I'd also love to offer you a free membership so you can experience it yourself first.
+
+Would you be open to a quick chat?
+
+— Niko & Thierry, The Focus Tribe
+skool.com/thefocustribe`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Template', 2000);
+  });
+}
+</script>
+</body>
+</html>
