@@ -1095,13 +1095,15 @@ function cancelEditTodo() { editingTodoId = null; renderTodos(); }
 
 function saveEditTodo(id) {
   const input = document.getElementById('edit-todo-input-' + id);
+  const ownerSelect = document.getElementById('edit-todo-owner-' + id);
   const text = input.value.trim();
   if (!text) return;
+  const owner = ownerSelect ? ownerSelect.value : undefined;
   if (usingFirestore) {
-    db.collection('todos').doc(id).update({ text });
+    db.collection('todos').doc(id).update({ text, owner });
   } else {
     const t = todos.find(x => x.id === id);
-    if (t) { t.text = text; persistLocal(); }
+    if (t) { t.text = text; t.owner = owner; persistLocal(); }
   }
   editingTodoId = null;
   renderTodos();
@@ -1137,6 +1139,12 @@ function renderTodos() {
           <div class="todo-item">
             <input type="text" class="edit-input" id="edit-todo-input-${t.id}"
               onkeydown="if(event.key==='Enter') saveEditTodo('${t.id}'); if(event.key==='Escape') cancelEditTodo();">
+            <select id="edit-todo-owner-${t.id}">
+              <option value="niko">Niko</option>
+              <option value="thierry">Thierry</option>
+              <option value="both">Both</option>
+              <option value="unassigned">⚪ Unassigned</option>
+            </select>
             <button class="icon-btn save-btn" onclick="saveEditTodo('${t.id}')" title="Save">✓</button>
             <button class="icon-btn" onclick="cancelEditTodo()" title="Cancel">✕</button>
           </div>
@@ -1155,8 +1163,10 @@ function renderTodos() {
     }).join('');
     if (editingTodoId) {
       const el = document.getElementById('edit-todo-input-' + editingTodoId);
+      const ownerEl = document.getElementById('edit-todo-owner-' + editingTodoId);
       const t = todos.find(x => x.id === editingTodoId);
       if (el && t) { el.value = t.text; el.focus(); }
+      if (ownerEl && t) { ownerEl.value = t.owner; }
     }
   }
   const total = todos.length;
