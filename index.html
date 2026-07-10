@@ -390,11 +390,12 @@
     .hero-banner p { font-size: 0.92rem; }
   }
 
-  /* HERO SECTION (Overview — Top Goals & Priorities) */
-  .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 2rem; }
+  /* HERO SECTION (Overview — Top Goals, Priorities & To-Dos) */
+  .hero-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.75rem; margin-bottom: 2rem; }
   .hero-col { border-radius: 20px; padding: 1.75rem; border: 1px solid var(--border); }
   .hero-col.goals-col { background: linear-gradient(135deg, rgba(255,107,26,0.1), rgba(255,107,26,0.01)); }
   .hero-col.priorities-col { background: linear-gradient(135deg, rgba(255,201,106,0.1), rgba(255,201,106,0.01)); }
+  .hero-col.todos-col { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.01)); }
   .hero-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
   .hero-title { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
   .hero-icon { font-size: 1.5rem; }
@@ -433,30 +434,20 @@
   }
   .goals-col .hero-rank { background: rgba(255,107,26,0.15); color: var(--accent); }
   .priorities-col .hero-rank { background: rgba(255,201,106,0.2); color: var(--tier2); }
+  .todos-col .hero-rank { background: rgba(34,197,94,0.18); color: var(--tier1); }
   .hero-item-body { flex: 1 1 auto; min-width: 0; }
   .hero-item-title { font-size: 1.15rem; font-weight: 700; word-break: break-word; margin-bottom: 0.35rem; }
   .hero-item-status { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
   .hero-item-status.status-todo { color: var(--muted); }
   .hero-item-status.status-in_progress { color: var(--tier2); }
   .hero-item-status.status-done { color: var(--tier1); }
+  .hero-item.todo-done .hero-item-title { color: var(--muted); text-decoration: line-through; }
+  .hero-item .todo-checkbox { flex-shrink: 0; }
 
   .stats-section { margin-top: 0.5rem; }
   .stats-heading { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.85rem; }
 
-  .owner-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; }
-  .owner-col-header { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-  .mini-todo-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .mini-todo-row:last-child { border-bottom: none; }
-  .mini-todo-row .todo-text { font-size: 0.82rem; }
-
   @media (max-width: 700px) {
-    .owner-columns { grid-template-columns: 1fr; }
     .hero-section { grid-template-columns: 1fr; }
   }
 
@@ -553,14 +544,14 @@
           </div>
           <div class="hero-list" id="overview-priorities"></div>
         </div>
-      </div>
 
-      <div class="block">
-        <div class="block-header">
-          <h2>✅ Top To-Dos</h2>
-          <button class="view-all-link" onclick="goToTab('todos')">View all →</button>
+        <div class="hero-col todos-col">
+          <div class="hero-header">
+            <span class="hero-title"><span class="hero-icon">✅</span> Top To-Dos</span>
+            <button class="view-all-link" onclick="goToTab('todos')">View all →</button>
+          </div>
+          <div class="hero-list" id="overview-todos"></div>
         </div>
-        <div class="owner-columns" id="overview-todos"></div>
       </div>
 
       <div class="stats-section">
@@ -633,6 +624,8 @@
         </div>
 
         <div class="progress-bar"><div class="progress-fill" id="todo-progress" style="width:0%"></div></div>
+
+        <p style="color:var(--muted); font-size:0.82rem; margin-bottom:1rem;">Star up to 3 to-dos to feature them on the Overview.</p>
 
         <div class="todo-list" id="todo-list"></div>
       </div>
@@ -1046,7 +1039,7 @@ function addTodo() {
   const text = input.value.trim();
   if (!text) return;
   const owner = document.getElementById('todo-owner').value;
-  const item = { text, owner, done: false, createdAt: Date.now() };
+  const item = { text, owner, done: false, starred: false, createdAt: Date.now() };
   if (usingFirestore) {
     db.collection('todos').add(item);
   } else {
@@ -1064,6 +1057,24 @@ function toggleTodo(id, done) {
   } else {
     const t = todos.find(x => x.id === id);
     if (t) { t.done = !t.done; persistLocal(); renderTodos(); renderStats(); }
+  }
+}
+
+function toggleTodoStar(id) {
+  const t = todos.find(x => x.id === id);
+  if (!t) return;
+  if (!t.starred && todos.filter(x => x.starred).length >= 3) {
+    alert('You can only feature 3 to-dos at a time. Unstar one first.');
+    return;
+  }
+  const starred = !t.starred;
+  if (usingFirestore) {
+    db.collection('todos').doc(id).update({ starred });
+  } else {
+    t.starred = starred;
+    persistLocal();
+    renderTodos();
+    renderStats();
   }
 }
 
@@ -1136,6 +1147,7 @@ function renderTodos() {
           <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
           <div class="todo-text">${escapeHtml(t.text)}</div>
           ${ownerBadge(t.owner)}
+          <button class="icon-btn star-btn" onclick="toggleTodoStar('${t.id}')" title="${t.starred ? 'Unstar' : 'Feature on Overview'}">${t.starred ? '★' : '☆'}</button>
           <button class="icon-btn edit-btn" onclick="startEditTodo('${t.id}')" title="Edit">✎</button>
           <button class="icon-btn" onclick="deleteTodo('${t.id}')" title="Delete">✕</button>
         </div>
@@ -1195,6 +1207,19 @@ function heroItem(item, rank) {
   `;
 }
 
+function heroTodoItem(item, rank) {
+  return `
+    <div class="hero-item ${item.done ? 'todo-done' : ''}">
+      <div class="hero-rank">${rank}</div>
+      <div class="hero-item-body">
+        <div class="hero-item-title">${escapeHtml(item.text)}</div>
+        ${ownerBadge(item.owner)}
+      </div>
+      <button class="todo-checkbox" onclick="toggleTodo('${item.id}', ${!!item.done})">${item.done ? '✓' : ''}</button>
+    </div>
+  `;
+}
+
 function renderOverviewSnapshots() {
   const goalsEl = document.getElementById('overview-goals');
   if (goalsEl) {
@@ -1210,19 +1235,8 @@ function renderOverviewSnapshots() {
 
   const todosEl = document.getElementById('overview-todos');
   if (todosEl) {
-    const owners = [['niko', 'Niko'], ['thierry', 'Thierry'], ['both', 'Both'], ['unassigned', '⚪ Unassigned']];
-    todosEl.innerHTML = owners.map(([key, label]) => {
-      const items = todos.filter(t => !t.done && t.owner === key).sort((a, b) => a.createdAt - b.createdAt).slice(0, 3);
-      const rows = items.length
-        ? items.map(t => `
-            <div class="mini-todo-row">
-              <button class="todo-checkbox" onclick="toggleTodo('${t.id}', ${!!t.done})">${t.done ? '✓' : ''}</button>
-              <div class="todo-text">${escapeHtml(t.text)}</div>
-            </div>
-          `).join('')
-        : '<div class="empty-state small">All clear</div>';
-      return `<div><div class="owner-col-header">${label}</div>${rows}</div>`;
-    }).join('');
+    const starred = todos.filter(t => t.starred).sort((a, b) => a.createdAt - b.createdAt);
+    todosEl.innerHTML = starred.length ? starred.map((t, i) => heroTodoItem(t, i + 1)).join('') : '<div class="empty-state">Star up to 3 to-dos in the To-Dos tab to feature them here.</div>';
   }
 }
 
